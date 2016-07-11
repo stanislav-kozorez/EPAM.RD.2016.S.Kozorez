@@ -14,8 +14,7 @@ namespace SimpleIteratorTests
             var iterator = new IteratorExample.IteratorExample();
 
             foreach (var number in iterator)
-                Debug.Write($"{number} ");
-                            
+                Debug.Write($"{number} ");          
         }
     }
 }
