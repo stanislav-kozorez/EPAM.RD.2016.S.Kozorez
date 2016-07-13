@@ -2,19 +2,31 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IteratorExample;
 using System.Diagnostics;
+using System.Collections;
 
 namespace SimpleIteratorTests
 {
     [TestClass]
-    public class UnitTest1
+    public class IteratorExampleTest
     {
         [TestMethod]
-        public void IteratorExampleTest()
+        public void MoveNext_AtFirstUsage_ReturnsTrue()
         {
-            var iterator = new IteratorExample.IteratorExample();
+            var iterator = IteratorGetter.GetIterator().GetEnumerator();
+            
 
-            foreach (var number in iterator)
-                Debug.Write($"{number} ");          
+            Assert.IsNotNull(iterator);
+            Assert.AreEqual(iterator.MoveNext(), true);   
+        }
+
+        [TestMethod]
+        public void Current_ReturnsTwo()
+        {
+            var iterator = (IEnumerator)IteratorGetter.GetIterator().GetEnumerator();
+
+            Assert.IsNotNull(iterator);
+            Assert.AreEqual(iterator.MoveNext(), true);
+            Assert.AreEqual(iterator.Current, 2);
         }
     }
 }

@@ -41,13 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IteratorExample.cs" />
+    <Compile Include="IteratorGetter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Sequence\Sequence.csproj">
-      <Project>{740ffa38-681c-4be9-bfc8-27bcb896cf5e}</Project>
-      <Name>Sequence</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,20 +1,31 @@
 ﻿using System;
 using System.Collections;
-using Sequence;
 
 namespace IteratorExample
 {
     public class IteratorExample : IEnumerable
     {
+        private int _callAttemptNumber;
+        private int _number = 1;       
+
         public IEnumerator GetEnumerator()
         {
-            Random r = new Random();
+            while(true)
+            {
+                yield return GetNextSimpleNumber();
+                _callAttemptNumber++;
+                if(_callAttemptNumber == 10000)
+                {
+                    _callAttemptNumber = 1;
+                    _number = 1;
+                }
+            }
+        }
 
-            var result = Sequence.Sequence.GetSequence(r.Next(3, 15));
-
-            for (int i = 0; i < result.Length; i++)
-                if (IsSimple(result[i]))
-                    yield return result[i];
+        private int GetNextSimpleNumber()
+        {
+            while (!IsSimple(++_number));
+            return _number;
         }
 
         private bool IsSimple(int number)
