@@ -37,6 +37,14 @@ namespace Attributes.Tests
                 Assert.AreEqual(true, actual);
             }
         }
+
+        [TestMethod]
+        public void AdvancedUserIsValid_ReturnsTrue()
+        {
+            var user = InstanceCreator.CreateAdvancedUser();
+            bool actual = InstanceValidator.AdvancedUserIsValid(user);
+            Assert.AreEqual(true, actual);
+        }
     }
 
 }

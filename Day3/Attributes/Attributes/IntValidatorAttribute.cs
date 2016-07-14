@@ -9,6 +9,9 @@ namespace Attributes
         private int from;
         private int to;
 
+        public int From { get { return from; } }
+        public int To { get { return to; } }
+
         public IntValidatorAttribute(int from, int to)
         {
             this.from = from;

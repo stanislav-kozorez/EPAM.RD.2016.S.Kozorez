@@ -8,6 +8,8 @@ namespace Attributes
     {
         private int length;
 
+        public int Length { get { return length; } }
+
         public StringValidatorAttribute(int length)
         {
             this.length = length;
