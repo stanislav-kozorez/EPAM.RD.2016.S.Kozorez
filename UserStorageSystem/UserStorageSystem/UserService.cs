@@ -11,10 +11,32 @@ namespace UserStorageSystem
     public class UserService
     {
         private readonly IUserStorage _userStorage;
+        private bool _isMaster;
+        internal  Dictionary<string, User> Users { get; private set; }
 
-        public UserService(IUserStorage userStorage)
+        public UserService(IUserStorage userStorage, bool isMaster)
         {
             this._userStorage = userStorage;
+            this._isMaster = isMaster;
+            this.Users = userStorage.LoadUsers();
+        }
+
+        public string AddUser(User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException("User is Null");
+            if (!_isMaster)
+                throw new InvalidOperationException("It is forbidden to write to Slave");
+            if (!UserIsValid(user))
+                throw new ArgumentException("User validation failed");
+            var id = GenerateUserId(user);
+            Users[id] = user;
+            return id;
+        }
+
+        private string GenerateUserId(User user)
+        {
+            throw new NotImplementedException();
         }
 
         private bool UserIsValid(User user)

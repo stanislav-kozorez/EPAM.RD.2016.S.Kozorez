@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationService.cs" />
     <Compile Include="Interfaces\IUserStorage.cs" />
+    <Compile Include="UserManagementSystem.cs" />
     <Compile Include="UserService.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\VisaRecord.cs" />

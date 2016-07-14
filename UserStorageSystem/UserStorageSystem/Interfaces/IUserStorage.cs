@@ -9,8 +9,7 @@ namespace UserStorageSystem.Interfaces
 {
     public interface IUserStorage
     {
-        int Add(User user);
-        bool RemoveUser(int id);
-        int[] FindUser();
+        void SaveUsers(IEnumerable<User> users);
+        Dictionary<string, User> LoadUsers();     
     }
 }
