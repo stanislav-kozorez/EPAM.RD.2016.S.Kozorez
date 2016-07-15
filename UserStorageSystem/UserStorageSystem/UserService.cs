@@ -11,49 +11,73 @@ namespace UserStorageSystem
     public class UserService
     {
         private readonly IUserStorage _userStorage;
+        private IUserValidator _userValidator;
+        private IIdGenerator _idGenerator;
         private bool _isMaster;
-        internal  Dictionary<string, User> Users { get; private set; }
+        private Dictionary<string, User> _users;
+        public event EventHandler<UserAddEventArgs> OnUserAdd = delegate {};
+        public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
 
         public UserService(IUserStorage userStorage, bool isMaster)
         {
             this._userStorage = userStorage;
             this._isMaster = isMaster;
-            this.Users = userStorage.LoadUsers();
+            this._users = userStorage.LoadUsers();
         }
 
-        public string AddUser(User user)
+        public string AddUser(User user, IIdGenerator generator = null, IUserValidator validator = null)
         {
             if (user == null)
                 throw new ArgumentNullException("User is Null");
             if (!_isMaster)
                 throw new InvalidOperationException("It is forbidden to write to Slave");
-            if (!UserIsValid(user))
+            var val = validator ?? _userValidator;
+            if (!val.UserIsValid(user))
                 throw new ArgumentException("User validation failed");
-            var id = GenerateUserId(user);
-            Users[id] = user;
+            var gen = generator ?? _idGenerator;
+            var id = gen.GenerateUserId(user);
+            _users[id] = user;
+            var eventArgs = new UserAddEventArgs(user);
+            OnUserAdd(this, eventArgs);
             return id;
         }
 
-        private string GenerateUserId(User user)
+        public void RemoveUser(string id)
         {
-            throw new NotImplementedException();
+            if (String.IsNullOrWhiteSpace(id))
+                throw new ArgumentNullException("Wrong id parameter");
+            if (!_isMaster)
+                throw new InvalidOperationException("It is forbidden to remove users from Slave");
+            if (!_users.Remove(id))
+                throw new ArgumentException($"User with id \"{id}\" doesn't exist");
+            var eventArgs = new UserRemoveEventArgs(id);
+            OnUserRemove(this, eventArgs);
+
         }
 
-        private bool UserIsValid(User user)
+        public string[] FindUser(Func<User, bool> predicate)
         {
-            bool result = true;
-            return result;
+            List<string> result = new List<string>();
+            foreach (var kvp in _users)
+                if (predicate(kvp.Value))
+                    result.Add(kvp.Key);
+            return result.ToArray();
+                
+        }
+
+        public User FindUser(string id)
+        {
+            if (!_users.ContainsKey(id))
+                throw new ArgumentException($"User with id \"{id}\" doesn't exist");
+            return _users[id];
+            
+        }
+
+        public void CommitChanges()
+        {
+            if (!_isMaster)
+                throw new InvalidOperationException("Commit is forbidden for Slave");
+            _userStorage.SaveUsers(_users);
         }
     }
 }
-
-/*
- *  There should be several ways to store users (for ex. In DB), but we need only one implementation – in memory. But there should be a possibility to add an another implementation.
- *	Methods for storage:
- *	Add a new user: Add(User user) -> returns User ID
- *	Search for an user: SearchForUser(ISearchCriteria criteria) -> returns User IDs. At least 3 criteria.
- *	Possble to use predicate here SearchForUser(Func<T>[] criteria).
- *	Delete an user: void Delete(...)
- *	When creating a new there should be a possibility to change the strategy to generate an ID.
- *  When adding a new user there should be a way to set a different set of rules for validating an user entity before adding it: Add(user) -> validation -> exception if not valid or generate and return a new id.
- */

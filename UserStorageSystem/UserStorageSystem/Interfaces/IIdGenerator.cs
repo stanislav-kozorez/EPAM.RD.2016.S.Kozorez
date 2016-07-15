@@ -7,9 +7,8 @@ using UserStorageSystem.Entities;
 
 namespace UserStorageSystem.Interfaces
 {
-    public interface IUserStorage
+    public interface IIdGenerator
     {
-        void SaveUsers(Dictionary<string, User> users);
-        Dictionary<string, User> LoadUsers();     
+        string GenerateUserId(User user);
     }
 }

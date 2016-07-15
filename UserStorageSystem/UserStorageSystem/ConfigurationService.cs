@@ -12,7 +12,7 @@ namespace UserStorageSystem
         {
             //Get configuration from app.config
             //create masters and slaves
-            return new UserManagementSystem();
+            return new UserManagementSystem(new UserService(new XmlUserStorage(), true), new UserService[] { new UserService(new XmlUserStorage(), false) });
         }
     }
 }

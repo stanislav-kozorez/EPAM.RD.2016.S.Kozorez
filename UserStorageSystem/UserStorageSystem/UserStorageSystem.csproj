@@ -41,12 +41,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationService.cs" />
+    <Compile Include="Interfaces\IIdGenerator.cs" />
     <Compile Include="Interfaces\IUserStorage.cs" />
+    <Compile Include="Interfaces\IUserValidator.cs" />
+    <Compile Include="UserAddEventArgs.cs" />
     <Compile Include="UserManagementSystem.cs" />
+    <Compile Include="UserRemoveEventArgs.cs" />
     <Compile Include="UserService.cs" />
     <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\VisaRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlUserStorage.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

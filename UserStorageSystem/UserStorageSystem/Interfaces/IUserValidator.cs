@@ -7,9 +7,8 @@ using UserStorageSystem.Entities;
 
 namespace UserStorageSystem.Interfaces
 {
-    public interface IUserStorage
+    public interface IUserValidator
     {
-        void SaveUsers(Dictionary<string, User> users);
-        Dictionary<string, User> LoadUsers();     
+        bool UserIsValid(User user);
     }
 }
