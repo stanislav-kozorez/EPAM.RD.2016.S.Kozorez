@@ -29,7 +29,9 @@ namespace UserStorageSystem
             var slaves = new UserService[slaveCount];
             for(int i = 0; i < slaveCount; i++)
             {
-                slaves[i] = new UserService(userStorage, false);
+                slaves[i] = new UserService(userStorage, false, logger, validator, generator);
+                master.OnUserAdd += slaves[i].OnUserAddHandler;
+                master.OnUserRemove += slaves[i].OnUserRemoveHandler;
             }
 
             return new UserManagementSystem(master, slaves);
