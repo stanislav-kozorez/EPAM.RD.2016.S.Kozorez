@@ -6,11 +6,15 @@ namespace UserStorageSystem
     public class UserAddEventArgs: EventArgs
     {
         private User user;
-        public User User { get { return user; } }
+        private string id;
 
-        public UserAddEventArgs(User user)
+        public User User { get { return user; } }
+        public string Id { get { return id; } }
+
+        public UserAddEventArgs(User user, string id)
         {
             this.user = user;
+            this.id = id;
         }
     }
 }

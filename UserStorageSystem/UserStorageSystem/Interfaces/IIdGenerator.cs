@@ -7,8 +7,8 @@ using UserStorageSystem.Entities;
 
 namespace UserStorageSystem.Interfaces
 {
-    public interface IIdGenerator
+    public interface IIdGenerator: IEnumerator<int>
     {
-        string GenerateUserId(User user);
+        void RestoreGeneratorState(string lastId);
     }
 }

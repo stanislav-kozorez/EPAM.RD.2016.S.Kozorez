@@ -22,7 +22,10 @@ namespace UserStorageSystem
             if (String.IsNullOrWhiteSpace(storageName))
                 throw new ArgumentException("Invalid storage name");
             var userStorage = new XmlUserStorage(storageName);
-            var master = new UserService(userStorage, true);
+            var logger = new DefaultLogger();
+            var validator = new DafaultValidator();
+            var generator = new DefaultGenerator();
+            var master = new UserService(userStorage, true, logger, validator, generator);
             var slaves = new UserService[slaveCount];
             for(int i = 0; i < slaveCount; i++)
             {

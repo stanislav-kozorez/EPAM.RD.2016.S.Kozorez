@@ -41,9 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationService.cs" />
+    <Compile Include="DafaultValidator.cs" />
+    <Compile Include="DefaultGenerator.cs" />
     <Compile Include="Interfaces\IIdGenerator.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IUserStorage.cs" />
     <Compile Include="Interfaces\IUserValidator.cs" />
+    <Compile Include="DefaultLogger.cs" />
     <Compile Include="UserAddEventArgs.cs" />
     <Compile Include="UserManagementSystem.cs" />
     <Compile Include="UserRemoveEventArgs.cs" />
