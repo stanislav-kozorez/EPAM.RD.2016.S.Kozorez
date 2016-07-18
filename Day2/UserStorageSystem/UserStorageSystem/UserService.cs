@@ -26,8 +26,9 @@ namespace UserStorageSystem
             this._userValidator = validator;
             this._idGenerator = generator;
             this._isMaster = isMaster;
-            this._users = userStorage.LoadUsers();
+            this._users = new Dictionary<string, User>();// userStorage.LoadUsers();
             this._logger = logger;
+            CommitChanges();
         }
 
         public string AddUser(User user, IIdGenerator generator = null, IUserValidator validator = null)

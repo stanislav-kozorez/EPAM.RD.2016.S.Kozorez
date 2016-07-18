@@ -33,7 +33,9 @@ namespace UserStorageSystem
                 }
             }
             else
+            {
                 throw new FileNotFoundException($"File {filename} doesn't exist");
+            }
             return result;
         }
 

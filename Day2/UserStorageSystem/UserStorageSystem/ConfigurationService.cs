@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserStorageSystem.Configuration;
 
 namespace UserStorageSystem
 {
@@ -10,15 +12,13 @@ namespace UserStorageSystem
     {
         public static UserManagementSystem ConfigureUserService()
         {
-            //Get configuration from app.config
-            //create masters and slaves
+            var servicesSection = ConfigurationManager.GetSection("services");
+            var storagesSection = (StoragesConfigSection)ConfigurationManager.GetSection("storages");
 
-            
-
-            int slaveCount = 3; //later we will get this from config
+            int slaveCount = 3;// servicesSection.Replication.SlaveCount;
             if (slaveCount <= 0 || slaveCount > 10)
                 throw new ArgumentException("Invalid Slave count");
-            var storageName = "Storage.xml"; //later we will get this from config
+            var storageName = "storage.xml";//storagesSection.Storage.Name;
             if (String.IsNullOrWhiteSpace(storageName))
                 throw new ArgumentException("Invalid storage name");
             var userStorage = new XmlUserStorage(storageName);
