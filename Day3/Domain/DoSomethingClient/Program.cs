@@ -41,7 +41,8 @@ namespace DoSomethingClient
         private static void Method1(Input input)
         {
             // TODO: Create a domain with name MyDomain.
-            AppDomain domain = null;
+            AppDomain domain = AppDomain.CreateDomain("MyDomain");
+            //AppDomain domain = null;
             var loader = (DomainAssemblyLoader)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(DomainAssemblyLoader).FullName);
 
             try
@@ -56,6 +57,7 @@ namespace DoSomethingClient
             }
 
             // TODO: Unload domain
+            AppDomain.Unload(domain);
         }
 
         private static void Method2(Input input)
@@ -67,7 +69,8 @@ namespace DoSomethingClient
             };
 
             // TODO: Create a domain with name MyDomain and setup from appDomainSetup.
-            AppDomain domain = null;
+            AppDomain domain = AppDomain.CreateDomain("MyDomain", null, appDomainSetup);
+            //AppDomain domain = null;
 
             var loader = (DomainAssemblyLoader)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(DomainAssemblyLoader).FullName);
 
@@ -83,6 +86,7 @@ namespace DoSomethingClient
             }
 
             // TODO: Unload domain
+            AppDomain.Unload(domain);
         }
     }
 }

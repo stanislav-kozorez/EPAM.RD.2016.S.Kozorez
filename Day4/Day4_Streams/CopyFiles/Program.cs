@@ -69,13 +69,11 @@ namespace FileStreams
                 {
                     byte[] buffer = new byte[1024];
                     int bytesRead = 0;
-                    int offset = 0;
 
                     do
                     {
-                        bytesRead = sourceStream.Read(buffer, offset, buffer.Length);
+                        bytesRead = sourceStream.Read(buffer, 0, buffer.Length);
                         Console.WriteLine("BlockCopy(): writing {0} bytes.", bytesRead);
-                        offset += bytesRead;
                         destStream.Write(buffer, 0, bytesRead);
                     }
                     while (bytesRead == buffer.Length);
