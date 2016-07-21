@@ -351,10 +351,19 @@ namespace UnitTestProject1
             var expectedData = 3;
             var actualData = -1;
 
+      
+
             //ToDo Add code for second list
+
+            Func<User, string> outerSelector = x => x.Name;
             
             
+            var result = userListSecond.Join(NameInfo, x => x.Name, y => y.name, (x, y) => new { name = x.Name, Info = y.Info }).ToList();
+            actualData = result.Count();
+
             Assert.IsTrue(expectedData == actualData);
+
+            CollectionAssert.AreNotEqual(NameInfo, result);
         }
     }
 }
