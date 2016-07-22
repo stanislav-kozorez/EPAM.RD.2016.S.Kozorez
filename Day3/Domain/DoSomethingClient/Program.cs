@@ -36,19 +36,21 @@ namespace DoSomethingClient
 
             Method1(input);
             Method2(input);
+            Console.ReadKey();
         }
 
         private static void Method1(Input input)
         {
-            // TODO: Create a domain with name MyDomain.
+            
             AppDomain domain = AppDomain.CreateDomain("MyDomain");
-            //AppDomain domain = null;
+            
             var loader = (DomainAssemblyLoader)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(DomainAssemblyLoader).FullName);
 
             try
             {
-                Result result = null; // TODO: Use loader here.
-
+                Result result = null; 
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"MyDomain\MyLibrary.dll");        
+                result = loader.LoadFrom(path, input);
                 Console.WriteLine("Method1: {0}", result.Value);
             }
             catch (Exception e)
@@ -56,7 +58,7 @@ namespace DoSomethingClient
                 Console.WriteLine("Exception: {0}", e.Message);
             }
 
-            // TODO: Unload domain
+            
             AppDomain.Unload(domain);
         }
 
@@ -68,16 +70,16 @@ namespace DoSomethingClient
                 PrivateBinPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MyDomain")
             };
 
-            // TODO: Create a domain with name MyDomain and setup from appDomainSetup.
-            AppDomain domain = AppDomain.CreateDomain("MyDomain", null, appDomainSetup);
-            //AppDomain domain = null;
+            
+            AppDomain domain = AppDomain.CreateDomain("MyDomain", new System.Security.Policy.Evidence(), appDomainSetup);
 
             var loader = (DomainAssemblyLoader)domain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(DomainAssemblyLoader).FullName);
 
             try
             {
-                Result result = null; // TODO: Use loader here.
-
+                Result result = null;
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"MyDomain\MyLibrary.dll");
+                result = loader.LoadFile(path, input);
                 Console.WriteLine("Method2: {0}", result.Value);
             }
             catch (Exception e)
