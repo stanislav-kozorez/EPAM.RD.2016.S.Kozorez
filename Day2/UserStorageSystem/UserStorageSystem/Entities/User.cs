@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UserStorageSystem.Entities
 {
@@ -10,8 +11,8 @@ namespace UserStorageSystem.Entities
         public DateTime BirthDate { get; set; }
         public string Passport { get; set; }
         public Gender Gender { get; set; }
-        public VisaRecord[] VisaRecords { get; set; }
-        public User() { }
+        public List<VisaRecord> VisaRecords { get; set; }
+        public User() { VisaRecords = new List<VisaRecord>(); }
 
         public bool Equals(User other)
         {

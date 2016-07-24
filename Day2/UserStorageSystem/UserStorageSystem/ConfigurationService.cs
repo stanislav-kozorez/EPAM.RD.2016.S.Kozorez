@@ -12,18 +12,18 @@ namespace UserStorageSystem
     {
         public static UserManagementSystem ConfigureUserService()
         {
-            var servicesSection = ConfigurationManager.GetSection("services");
+            var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("services");
             var storagesSection = (StoragesConfigSection)ConfigurationManager.GetSection("storages");
 
-            int slaveCount = 3;// servicesSection.Replication.SlaveCount;
+            int slaveCount = servicesSection.Replication.SlaveCount;
             if (slaveCount <= 0 || slaveCount > 10)
                 throw new ArgumentException("Invalid Slave count");
-            var storageName = "storage.xml";//storagesSection.Storage.Name;
+            var storageName = storagesSection.Storage.Name;
             if (String.IsNullOrWhiteSpace(storageName))
                 throw new ArgumentException("Invalid storage name");
             var userStorage = new XmlUserStorage(storageName);
             var logger = new DefaultLogger();
-            var validator = new DafaultValidator();
+            var validator = new DefaultValidator();
             var generator = new DefaultGenerator();
             var master = new UserService(userStorage, true, logger, validator, generator);
             var slaves = new UserService[slaveCount];

@@ -5,7 +5,7 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    internal class DefaultGenerator: IIdGenerator
+    public class DefaultGenerator: IIdGenerator
     {
         private int _callAttemptNumber;
         private int _number = 1;

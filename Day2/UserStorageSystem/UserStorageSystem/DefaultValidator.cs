@@ -4,7 +4,7 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    internal class DafaultValidator: IUserValidator
+    public class DefaultValidator: IUserValidator
     {
         public bool UserIsValid(User user)
         {
@@ -15,6 +15,8 @@ namespace UserStorageSystem
             if (String.IsNullOrWhiteSpace(user.FirstName) ||
                 String.IsNullOrWhiteSpace(user.LastName) ||
                 string.IsNullOrWhiteSpace(user.Passport))
+                return false;
+            if (user.Passport.Length != 9)
                 return false;
             if (user.VisaRecords == null)
                 return false;

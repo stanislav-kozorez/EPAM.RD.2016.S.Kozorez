@@ -14,7 +14,7 @@ namespace UserStorageSystem
         public XmlUserStorage(string name)
         {
             if (String.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+                throw new ArgumentException(nameof(name));
             this.filename = name;
         }
 
