@@ -18,9 +18,9 @@ namespace UserStorageSystem
             this.filename = name;
         }
 
-        public Dictionary<string, User> LoadUsers()
+        public List<User> LoadUsers()
         {
-            Dictionary<string, User> result;
+            var result = new List<User>();
             if (File.Exists(filename))
             {
                 if (new FileInfo(filename).Extension != ".xml")
@@ -28,25 +28,22 @@ namespace UserStorageSystem
 
                 using (var stream = File.Open(filename, FileMode.Open))
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(Dictionary<string, User>));
-                    result = (Dictionary<string, User>)serializer.Deserialize(stream);
+                    XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
+                    result = (List<User>)serializer.Deserialize(stream);
                 }
             }
-            else
-            {
-                throw new FileNotFoundException($"File {filename} doesn't exist");
-            }
+            
             return result;
         }
 
-        public void SaveUsers(Dictionary<string, User> users)
+        public void SaveUsers(List<User> users)
         {
             if (users == null)
                 throw new ArgumentNullException(nameof(users));
 
             using (var stream = File.Open(filename, FileMode.Create))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(Dictionary<string, User>));
+                XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
                 serializer.Serialize(stream, users);
             }
         }

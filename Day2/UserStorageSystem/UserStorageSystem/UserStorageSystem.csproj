@@ -50,6 +50,7 @@
     <Compile Include="DefaultGenerator.cs" />
     <Compile Include="Interfaces\IIdGenerator.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
+    <Compile Include="Interfaces\IUserService.cs" />
     <Compile Include="Interfaces\IUserStorage.cs" />
     <Compile Include="Interfaces\IUserValidator.cs" />
     <Compile Include="DefaultLogger.cs" />

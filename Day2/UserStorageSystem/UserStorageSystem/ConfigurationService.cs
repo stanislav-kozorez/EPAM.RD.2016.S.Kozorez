@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserStorageSystem.Configuration;
+using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
     public static class ConfigurationService
     {
-        public static UserManagementSystem ConfigureUserService()
+        public static IUserService ConfigureUserService()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("services");
             var storagesSection = (StoragesConfigSection)ConfigurationManager.GetSection("storages");

@@ -2,13 +2,13 @@
 {
     public class UserRemoveEventArgs
     {
-        private string id;
+        private int index;
 
-        public string Id { get { return id; } }
+        public int Index { get { return index; } }
 
-        public UserRemoveEventArgs(string id)
+        public UserRemoveEventArgs(int index)
         {
-            this.id = id;
+            this.index = index;
         }
     }
 }
