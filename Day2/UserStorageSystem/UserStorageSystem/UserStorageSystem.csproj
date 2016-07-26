@@ -48,6 +48,7 @@
     <Compile Include="Configuration\StoragesConfigSection.cs" />
     <Compile Include="DefaultValidator.cs" />
     <Compile Include="DefaultGenerator.cs" />
+    <Compile Include="Entities\TcpBundle.cs" />
     <Compile Include="Interfaces\IIdGenerator.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IUserService.cs" />
