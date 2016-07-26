@@ -22,13 +22,15 @@ namespace UserStorageSystem
         private bool _isMaster;
         private List<User> _users;
         private ReaderWriterLockSlim _locker;
+        private bool _usesTcp;
+        private TcpInfo[] tcpInfos;
 
         public string Name { get; internal set; }
 
         public event EventHandler<UserAddEventArgs> OnUserAdd = delegate {};
         public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
 
-        public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool uses_tcp = false)
+        public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool usesTcp = false)
         {
             this._userStorage = userStorage;
             this._userValidator = validator;
@@ -37,6 +39,7 @@ namespace UserStorageSystem
             this._users = userStorage.LoadUsers();
             this._logger = logger;
             this._locker = new ReaderWriterLockSlim();
+            this._usesTcp = usesTcp;
         }
 
         public string AddUser(User user)
@@ -56,6 +59,10 @@ namespace UserStorageSystem
             _users.Add(user);
             _locker.ExitWriteLock();
 
+            if(_usesTcp)
+            {
+                NotifySlaves(new TcpBundle() { Command = TcpCommand.Add, User = user });
+            }
             var eventArgs = new UserAddEventArgs(user);
             OnUserAdd(this, eventArgs);
             return id;
@@ -141,7 +148,7 @@ namespace UserStorageSystem
 
         internal void NotifySlaves(TcpBundle bundle)
         {
-            var serverIp = "192.168.0.1";
+            var serverIp = "127.0.0.1";
             var client = new TcpClient(serverIp, 9050);
             var formatter = new BinaryFormatter();
             var strm = client.GetStream();
@@ -195,7 +202,8 @@ namespace UserStorageSystem
                         server.Stop();
                     }
                 }));
-            
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         private int GetUserIndex(string id)
