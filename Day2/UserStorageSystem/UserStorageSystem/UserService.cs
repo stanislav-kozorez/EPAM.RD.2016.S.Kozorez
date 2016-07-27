@@ -25,12 +25,13 @@ namespace UserStorageSystem
         private bool _usesTcp;
         private TcpInfo[] tcpInfos;
 
+        internal TcpInfo[] TcpInfos { get { return tcpInfos; } set { tcpInfos = value; } }
         public string Name { get; internal set; }
 
         public event EventHandler<UserAddEventArgs> OnUserAdd = delegate {};
         public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
 
-        public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool usesTcp = false)
+        public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool usesTcp = false, TcpInfo slaveInfo = null)
         {
             this._userStorage = userStorage;
             this._userValidator = validator;
@@ -40,11 +41,13 @@ namespace UserStorageSystem
             this._logger = logger;
             this._locker = new ReaderWriterLockSlim();
             this._usesTcp = usesTcp;
+            if (usesTcp && !_isMaster)
+                StartListener(slaveInfo.IpAddress, slaveInfo.Port);
         }
 
         public string AddUser(User user)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to add new user to {0}", _isMaster ? "Master" : "Slave"));
+            _logger.Log(TraceEventType.Information, String.Format("Try to add new user to {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
             if (user == null)
                 throw new ArgumentNullException("User is Null");
             if (!_isMaster)
@@ -70,7 +73,7 @@ namespace UserStorageSystem
 
         public void RemoveUser(string id)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to remove user from {0}", _isMaster ? "Master" : "Slave"));
+            _logger.Log(TraceEventType.Information, String.Format("Try to remove user from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
             if (String.IsNullOrWhiteSpace(id))
                 throw new ArgumentNullException("Wrong id parameter");
             if (!_isMaster)
@@ -89,7 +92,7 @@ namespace UserStorageSystem
 
         public string[] FindUser(Func<User, bool> predicate)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to find users by predicate from {0}", _isMaster ? "Master" : "Slave"));
+            _logger.Log(TraceEventType.Information, String.Format("Try to find users by predicate from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
             List<string> result = new List<string>();
 
             _locker.EnterReadLock();
@@ -104,7 +107,7 @@ namespace UserStorageSystem
 
         public User FindUser(string id)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to find user by id from {0}", _isMaster ? "Master" : "Slave"));
+            _logger.Log(TraceEventType.Information, String.Format("Try to find user by id from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
 
             _locker.EnterReadLock();
             var index = GetUserIndex(id);
@@ -119,7 +122,7 @@ namespace UserStorageSystem
 
         public void CommitChanges()
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to commit changes on {0}", _isMaster ? "Master" : "Slave"));
+            _logger.Log(TraceEventType.Information, String.Format("Try to commit changes on {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
             if (!_isMaster)
                 throw new InvalidOperationException("Commit is forbidden for Slave");
 
@@ -130,7 +133,7 @@ namespace UserStorageSystem
 
         internal void OnUserAddHandler(object sender, UserAddEventArgs e)
         {
-            _logger.Log(TraceEventType.Information, "UserAddHandler on Slave");
+            _logger.Log(TraceEventType.Information, $"UserAddHandler on Slave {Name}");
 
             _locker.EnterWriteLock();
             _users.Add(e.User);
@@ -139,7 +142,7 @@ namespace UserStorageSystem
 
         internal void OnUserRemoveHandler(object sender, UserRemoveEventArgs e)
         {
-            _logger.Log(TraceEventType.Information, "UserRemoveHandler on Slave");
+            _logger.Log(TraceEventType.Information, $"UserRemoveHandler on Slave {Name}");
 
             _locker.EnterWriteLock();
             _users.RemoveAt(e.Index);
@@ -148,14 +151,16 @@ namespace UserStorageSystem
 
         internal void NotifySlaves(TcpBundle bundle)
         {
-            var serverIp = "127.0.0.1";
-            var client = new TcpClient(serverIp, 9050);
             var formatter = new BinaryFormatter();
-            var strm = client.GetStream();
-            formatter.Serialize(strm, bundle);
-
-            strm.Close();
-            client.Close();
+            foreach (var tcpInfo in tcpInfos)
+            {
+                _logger.Log(TraceEventType.Information, $"Notify slave at {tcpInfo.IpAddress}:{tcpInfo.Port}");
+                var client = new TcpClient(tcpInfo.IpAddress, tcpInfo.Port);
+                var strm = client.GetStream();
+                formatter.Serialize(strm, bundle);
+                strm.Close();
+                client.Close();
+            }
         } 
 
         internal void StartListener(string ipAddr, int port)
@@ -171,9 +176,9 @@ namespace UserStorageSystem
                         server.Start();
                         while (true)
                         {
-                            _logger.Log(TraceEventType.Information, $"device {Name} is waiting for a connection...");
                             TcpClient client = server.AcceptTcpClient();
 
+                            _logger.Log(TraceEventType.Information, $"device {Name} got new update request");
                             var stream = client.GetStream();
                             var formatter = new BinaryFormatter();
 

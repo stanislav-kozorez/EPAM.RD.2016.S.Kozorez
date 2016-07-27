@@ -26,7 +26,7 @@ namespace UserStorageSystem
                 if (new FileInfo(filename).Extension != ".xml")
                     throw new ArgumentException($"wrong type of file {filename}");
 
-                using (var stream = File.Open(filename, FileMode.Open))
+                using (var stream = File.Open(filename, FileMode.Open, FileAccess.Read))
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
                     result = (List<User>)serializer.Deserialize(stream);

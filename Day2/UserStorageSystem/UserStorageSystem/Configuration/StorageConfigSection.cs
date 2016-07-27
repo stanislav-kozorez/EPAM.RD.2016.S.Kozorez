@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace UserStorageSystem.Configuration
 {
-    public class StoragesConfigSection: ConfigurationSection
+    public class StorageConfigSection: ConfigurationSection
     {
-        [ConfigurationProperty("storage")]
-        public StorageElement Storage
+        [ConfigurationProperty("name", DefaultValue = "storage.xml", IsRequired = true)]
+        public string Name
         {
             get
             {
-                return (StorageElement)this["storage"];
+                return (string)this["name"];
             }
             set
             {
-                this["storage"] = value;
+                this["name"] = value;
             }
         }
     }

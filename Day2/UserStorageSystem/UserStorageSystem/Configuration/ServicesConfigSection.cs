@@ -9,16 +9,18 @@ namespace UserStorageSystem.Configuration
 {
     public class ServicesConfigSection: ConfigurationSection
     {
-        [ConfigurationProperty("replication")]
-        public ReplicationElement Replication
+        [ConfigurationProperty("usesTcp", DefaultValue = true, IsRequired = true)]
+        public bool UsesTcp
+        {
+            get { return (bool)this["usesTcp"]; }
+        }
+
+        [ConfigurationProperty("services")]
+        public ServicesCollection Services
         {
             get
             {
-                return (ReplicationElement)this["replication"];
-            }
-            set
-            {
-                this["replication"] = value;
+                return (ServicesCollection)this["services"];
             }
         }
     }
