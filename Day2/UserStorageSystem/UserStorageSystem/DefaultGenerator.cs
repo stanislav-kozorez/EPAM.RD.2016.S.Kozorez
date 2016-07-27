@@ -7,8 +7,8 @@ namespace UserStorageSystem
 {
     public class DefaultGenerator: IIdGenerator
     {
-        private int _callAttemptNumber;
         private int _number = 1;
+        public int CallNumber { get; private set; }
 
         public int Current
         {
@@ -26,17 +26,15 @@ namespace UserStorageSystem
             }
         }
 
-        public void RestoreGeneratorState(string lastId)
+        public void RestoreGeneratorState(string lastId, int callAttemptCount)
         {
             int id;
             if(!int.TryParse(lastId, out id))
             {
                 throw new ArgumentException("Invalid last id");
             }
-            while (_number != id)
-            {
-                MoveNext();
-            }
+            _number = id;
+            CallNumber = callAttemptCount;
         }
 
         public void Dispose()
@@ -47,10 +45,10 @@ namespace UserStorageSystem
         public bool MoveNext()
         {
             _number = GetNextSimpleNumber();
-            _callAttemptNumber++;
-            if (_callAttemptNumber == 10000)
+            CallNumber++;
+            if (CallNumber == 10000)
             {
-                _callAttemptNumber = 0;
+                CallNumber = 0;
                 _number = 1;
             }
             return true;
@@ -59,7 +57,7 @@ namespace UserStorageSystem
         public void Reset()
         {
             _number = 1;
-            _callAttemptNumber = 0;
+            CallNumber = 0;
         }
 
         private int GetNextSimpleNumber()

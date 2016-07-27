@@ -33,7 +33,7 @@ namespace UserStorageSystem
 
         public string[] FindUser(Func<User, bool> predicate)
         {
-            currentService = (currentService + 1) / serviceCount;
+            currentService = (currentService + 1) % serviceCount;
             var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
 
             return service.FindUser(predicate);
@@ -41,7 +41,7 @@ namespace UserStorageSystem
 
         public User FindUser(string id)
         {
-            currentService = (currentService + 1) / serviceCount;
+            currentService = (currentService + 1) % serviceCount;
             var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
 
             return service.FindUser(id);

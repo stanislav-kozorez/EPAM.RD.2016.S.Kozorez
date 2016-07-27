@@ -15,34 +15,36 @@ namespace UserStorageSystemTests
         [TestInitialize]
         public void Init()
         {
-            users = new List<User>();
-            users.Add(new User()
+            users = new List<User>()
             {
-                Id = "2",
-                BirthDate = DateTime.Now,
-                FirstName = "John",
-                LastName = "Smith",
-                Gender = Gender.Male,
-                Passport = "sf2342323"
-            });
-            users.Add(new User()
-            {
-                Id = "3",
-                BirthDate = DateTime.Now,
-                FirstName = "Max",
-                LastName = "Smith",
-                Gender = Gender.Male,
-                Passport = "sf2332323"
-            });
-            users.Add(new User()
-            {
-                Id = "5",
-                BirthDate = DateTime.Now,
-                FirstName = "Ben",
-                LastName = "Smith",
-                Gender = Gender.Male,
-                Passport = "sf2342323"
-            });
+                new User()
+                {
+                    Id = "2",
+                    BirthDate = DateTime.Now,
+                    FirstName = "John",
+                    LastName = "Smith",
+                    Gender = Gender.Male,
+                    Passport = "sf2342323"
+                },
+                new User()
+                {
+                    Id = "3",
+                    BirthDate = DateTime.Now,
+                    FirstName = "Max",
+                    LastName = "Smith",
+                    Gender = Gender.Male,
+                    Passport = "sf2332323"
+                },
+                new User()
+                {
+                    Id = "5",
+                    BirthDate = DateTime.Now,
+                    FirstName = "Ben",
+                    LastName = "Smith",
+                    Gender = Gender.Male,
+                    Passport = "sf2342323"
+                }
+            };
         }
 
         [TestMethod]
@@ -70,8 +72,15 @@ namespace UserStorageSystemTests
         public void SaveUsers_CreatesNewFileOnDisk()
         {
             var storage = new XmlUserStorage("storage.xml");
+            var storageInfo = new StorageInfo()
+            {
+                Users = users,
+                GeneratorCallCount = 3,
+                GeneratorTypeName = typeof(DefaultGenerator).FullName,
+                LastId = "5"
+            };
 
-            storage.SaveUsers(users);
+            storage.SaveUsers(storageInfo);
             Assert.IsTrue(File.Exists("storage.xml"));
         }
 
@@ -81,7 +90,7 @@ namespace UserStorageSystemTests
             var storage = new XmlUserStorage("storage.xml");
 
             var result = storage.LoadUsers();
-            CollectionAssert.AreEqual(users, result);
+            CollectionAssert.AreEqual(users, result.Users);
         }
     }
 }

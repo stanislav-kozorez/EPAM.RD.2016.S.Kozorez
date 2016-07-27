@@ -9,6 +9,7 @@ namespace UserStorageSystem.Interfaces
 {
     public interface IIdGenerator: IEnumerator<int>
     {
-        void RestoreGeneratorState(string lastId);
+        int CallNumber { get; }
+        void RestoreGeneratorState(string lastId, int callAttemptCount);
     }
 }

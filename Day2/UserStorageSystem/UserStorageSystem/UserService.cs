@@ -33,11 +33,22 @@ namespace UserStorageSystem
 
         public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool usesTcp = false, TcpInfo slaveInfo = null)
         {
+            var storageInfo = userStorage.LoadUsers();
+            if(storageInfo == null)
+            {
+                storageInfo = new StorageInfo() { Users = new List<User>() };
+            }
+            else
+            {
+                if (storageInfo.GeneratorTypeName != generator.GetType().FullName)
+                    throw new ArgumentException("Generator type differs from stored one");
+                generator.RestoreGeneratorState(storageInfo.LastId, storageInfo.GeneratorCallCount);
+            }
             this._userStorage = userStorage;
             this._userValidator = validator;
             this._idGenerator = generator;
             this._isMaster = isMaster;
-            this._users = userStorage.LoadUsers();
+            this._users = storageInfo.Users;
             this._logger = logger;
             this._locker = new ReaderWriterLockSlim();
             this._usesTcp = usesTcp;
@@ -52,7 +63,7 @@ namespace UserStorageSystem
                 throw new ArgumentNullException("User is Null");
             if (!_isMaster)
                 throw new InvalidOperationException("It is forbidden to write to Slave");
-            if (_userValidator.UserIsValid(user))
+            if (!_userValidator.UserIsValid(user))
                 throw new ArgumentException("User validation failed");
 
             _locker.EnterWriteLock();
@@ -96,9 +107,13 @@ namespace UserStorageSystem
             List<string> result = new List<string>();
 
             _locker.EnterReadLock();
-            foreach (var user in _users)
+            Parallel.ForEach<User>(_users, user => {
                 if (predicate(user))
                     result.Add(user.Id);
+            });
+            //foreach (var user in _users)
+            //    if (predicate(user))
+            //        result.Add(user.Id);
             _locker.ExitReadLock();
 
             return result.ToArray();
@@ -127,7 +142,14 @@ namespace UserStorageSystem
                 throw new InvalidOperationException("Commit is forbidden for Slave");
 
             _locker.EnterReadLock();
-            _userStorage.SaveUsers(_users);
+            var storageInfo = new StorageInfo()
+            {
+                Users = _users,
+                GeneratorCallCount = _idGenerator.CallNumber,
+                GeneratorTypeName = _idGenerator.GetType().FullName,
+                LastId = _idGenerator.Current.ToString()
+            };
+            _userStorage.SaveUsers(storageInfo);
             _locker.ExitReadLock();
         }
 

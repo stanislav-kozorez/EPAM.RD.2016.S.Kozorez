@@ -18,9 +18,9 @@ namespace UserStorageSystem
             this.filename = name;
         }
 
-        public List<User> LoadUsers()
+        public StorageInfo LoadUsers()
         {
-            var result = new List<User>();
+            StorageInfo result = null;
             if (File.Exists(filename))
             {
                 if (new FileInfo(filename).Extension != ".xml")
@@ -28,23 +28,23 @@ namespace UserStorageSystem
 
                 using (var stream = File.Open(filename, FileMode.Open, FileAccess.Read))
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
-                    result = (List<User>)serializer.Deserialize(stream);
+                    XmlSerializer serializer = new XmlSerializer(typeof(StorageInfo));
+                    result = (StorageInfo)serializer.Deserialize(stream);
                 }
             }
             
             return result;
         }
 
-        public void SaveUsers(List<User> users)
+        public void SaveUsers(StorageInfo storageInfo)
         {
-            if (users == null)
-                throw new ArgumentNullException(nameof(users));
+            if (storageInfo == null)
+                throw new ArgumentNullException(nameof(storageInfo));
 
             using (var stream = File.Open(filename, FileMode.Create))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(List<User>));
-                serializer.Serialize(stream, users);
+                XmlSerializer serializer = new XmlSerializer(typeof(StorageInfo));
+                serializer.Serialize(stream, storageInfo);
             }
         }
     }

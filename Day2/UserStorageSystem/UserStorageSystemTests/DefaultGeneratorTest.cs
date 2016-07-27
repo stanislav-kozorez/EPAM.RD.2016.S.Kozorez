@@ -11,7 +11,7 @@ namespace UserStorageSystemTests
         public void RestoreGeneratorState_WithParamTen_ReturnsTenInCurrent()
         {
             var generator = new DefaultGenerator();
-            generator.RestoreGeneratorState("11");
+            generator.RestoreGeneratorState("11", 5);
             Assert.AreEqual(11, generator.Current);
         }
 
