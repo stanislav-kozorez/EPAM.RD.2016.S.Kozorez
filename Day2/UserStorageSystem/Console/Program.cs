@@ -13,7 +13,8 @@ namespace ConsoleApp
     {
         static void Main(string[] args)
         {
-            var userService = ConfigurationService.ConfigureUserService();
+            //var userService = ConfigurationService.ConfigureUserServiceInSingleDomain();
+            var userService = ConfigurationService.ConfigureUserServiceInMultiplyDomains();
 
             userService.AddUser(new User()
             {
@@ -23,6 +24,17 @@ namespace ConsoleApp
                 Gender = Gender.Male,
                 Passport = "sf2342323"
             });
+
+            var userId = userService.FindUser(x => x.FirstName == "John").FirstOrDefault();
+            if(userId != null)
+            {
+                var user = userService.FindUser(userId);
+                userService.RemoveUser(userId);
+                userService.CommitChanges();
+                Console.ReadKey();
+            }
+
+            return;
 
             var writeTask = new Task(() => {
                 for(int i = 0; i < 100; i++)

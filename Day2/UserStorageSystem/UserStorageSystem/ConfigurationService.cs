@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UserStorageSystem.Configuration;
@@ -12,11 +14,10 @@ namespace UserStorageSystem
 {
     public static class ConfigurationService
     {
-        public static IUserService ConfigureUserService()
+        public static IUserService ConfigureUserServiceInSingleDomain()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("serviceConfig");
             var storagesSection = (StorageConfigSection)ConfigurationManager.GetSection("storage");
-
 
             bool usesTcp = servicesSection.UsesTcp;
             int slaveCount = servicesSection.Services.Count - 1;
@@ -43,6 +44,63 @@ namespace UserStorageSystem
             {
                 slaves[i] = new UserService(userStorage, logger, validator, generator, usesTcp: usesTcp, slaveInfo: tcpInfos[i]) { Name = slavesInfo[i].Name};
                 if (!usesTcp)
+                {
+                    master.OnUserAdd += slaves[i].OnUserAddHandler;
+                    master.OnUserRemove += slaves[i].OnUserRemoveHandler;
+                }
+            }
+
+            return new UserManagementSystem(master, slaves);
+        }
+
+        public static UserManagementSystem ConfigureUserServiceInMultiplyDomains()
+        {
+            var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("serviceConfig");
+            var storagesSection = (StorageConfigSection)ConfigurationManager.GetSection("storage");
+
+            bool usesTcp = servicesSection.UsesTcp;
+            int slaveCount = servicesSection.Services.Count - 1;
+            if (slaveCount <= 0 || slaveCount > 10)
+                throw new ArgumentException("Invalid Slave count");
+            int masterCount = servicesSection.Services.Cast<ServiceElement>().Where(x => x.Type == "master").Count();
+            if (masterCount != 1)
+                throw new ArgumentException("Invalid Master count");
+            var storageName = storagesSection.Name;
+            if (String.IsNullOrWhiteSpace(storageName))
+                throw new ArgumentException("Invalid storage name");
+
+            UserService master = null;
+            var servicesInfo = servicesSection.Services.Cast<ServiceElement>().ToArray();
+            var tcpInfos = servicesInfo.Where(x => x.Type == "slave").Select(x => new TcpInfo() { IpAddress = x.Ip, Port = x.Port }).ToArray();
+            var slaves = new UserService[slaveCount];
+            var currentSlaveIndex = 0;
+            for (int i = 0; i < servicesInfo.Length; i++)
+            {
+                var domain = AppDomain.CreateDomain("Domain_" + servicesInfo[i].Name);
+                var userStorage = (IUserStorage)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(XmlUserStorage).FullName,
+                    true, BindingFlags.CreateInstance, null, new object[] { storageName }, CultureInfo.CurrentCulture, null);
+                var logger = (ILogger)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(DefaultLogger).FullName);
+                var validator = (IUserValidator)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(DefaultValidator).FullName);
+                var generator = (IIdGenerator)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(DefaultGenerator).FullName);
+                
+                if(servicesInfo[i].Type == "master")
+                {
+                    master = (UserService)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(UserService).FullName, true, BindingFlags.CreateInstance, null,
+                                  new object[] { userStorage, logger, validator, generator, true, usesTcp, null }, CultureInfo.CurrentCulture, null);
+                    master.Name = servicesInfo[i].Name;
+                    master.TcpInfos = tcpInfos;
+                }
+                else
+                {
+                    slaves[currentSlaveIndex] = (UserService)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(UserService).FullName,
+                    true, BindingFlags.CreateInstance, null,
+                    new object[] { userStorage, logger, validator, generator, false, usesTcp, tcpInfos[currentSlaveIndex] }, CultureInfo.CurrentCulture, null);
+                    slaves[currentSlaveIndex++].Name = servicesInfo[i].Name;
+                }
+            }
+            if (!usesTcp)
+            {
+                for (int i = 0; i < slaveCount; i++)
                 {
                     master.OnUserAdd += slaves[i].OnUserAddHandler;
                     master.OnUserRemove += slaves[i].OnUserRemoveHandler;

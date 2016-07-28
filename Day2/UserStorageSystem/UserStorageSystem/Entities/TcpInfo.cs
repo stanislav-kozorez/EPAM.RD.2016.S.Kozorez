@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserStorageSystem.Entities
 {
+    [Serializable]
     public class TcpInfo
     {
         public string IpAddress { get; set; }

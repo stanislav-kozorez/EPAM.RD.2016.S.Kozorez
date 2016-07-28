@@ -5,7 +5,8 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    public class DefaultGenerator: IIdGenerator
+    [Serializable]
+    public class DefaultGenerator: MarshalByRefObject, IIdGenerator
     {
         private int _number = 1;
         public int CallNumber { get; private set; }

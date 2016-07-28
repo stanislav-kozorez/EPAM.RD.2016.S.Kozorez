@@ -9,7 +9,8 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    public class DefaultLogger : ILogger
+    [Serializable]
+    public class DefaultLogger : MarshalByRefObject, ILogger
     {
         private TraceSource _traceSource;
         private int _id;

@@ -13,7 +13,7 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    public class UserService: IUserService
+    public class UserService: MarshalByRefObject, IUserService
     {
         private readonly IUserStorage _userStorage;
         private IUserValidator _userValidator;
@@ -97,6 +97,10 @@ namespace UserStorageSystem
             _users.RemoveAt(index);
             _locker.ExitWriteLock();
 
+            if (_usesTcp)
+            {
+                NotifySlaves(new TcpBundle() { Command = TcpCommand.Delete, User = new User() { Id = id } });
+            }
             var eventArgs = new UserRemoveEventArgs(index);
             OnUserRemove(this, eventArgs);
         }
