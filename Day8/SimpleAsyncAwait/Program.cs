@@ -11,7 +11,7 @@ namespace SimpleAsyncAwait
         static void Main(string[] args)
         {
             DoInAsyncWay();
-            //DoInParallelWay();
+            DoInParallelWay();
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();
@@ -21,13 +21,13 @@ namespace SimpleAsyncAwait
         {
             Console.WriteLine("Waiting for task to complete.");
 
-            AsyncHelper.RunSync(() => new Task(DoSomeWork));
+            AsyncHelper.RunSync(DoSomeWork);
             
             // TODO: AsyncHelper.RunSync(DoSomeWork);
             Console.WriteLine("Task is completed. Press any key to continue.");
         }
 
-        private async static void DoSomeWork()
+        private async static Task DoSomeWork()
         {
             Console.WriteLine("Press any key to do the work.");
             Console.ReadKey();
@@ -60,12 +60,15 @@ namespace SimpleAsyncAwait
             foreach (var q in query)
             {
                 // TODO: use factory to create tasks and run them in a parallel style.
-
-                var webClient = new WebClient();
-                webClient.DownloadString(string.Format(searchRequest, q));
+                tasks.Add(Task.Factory.StartNew(() =>
+                {
+                    var webClient = new WebClient();
+                    webClient.DownloadString(string.Format(searchRequest, q));
+                }));
             }
 
             // TODO: wait here unit all tasks will complete.
+            Task.WaitAll(tasks.ToArray());
             stopwatch.Stop();
 
             Console.WriteLine(string.Format("Total time is {0}ms.", stopwatch.ElapsedMilliseconds));
