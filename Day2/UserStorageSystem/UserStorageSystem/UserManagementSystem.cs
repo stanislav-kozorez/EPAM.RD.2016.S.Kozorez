@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ServiceModel;
 using UserStorageSystem.Entities;
 using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)]
     public class UserManagementSystem: IUserService
     {
         private UserService _master;
@@ -17,9 +19,6 @@ namespace UserStorageSystem
             this._slaves = slaves;
             this.serviceCount = slaves.Length + 1;
         }
-
-        public event EventHandler<UserAddEventArgs> OnUserAdd = delegate { };
-        public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
 
         public string AddUser(User user)
         {
@@ -50,6 +49,38 @@ namespace UserStorageSystem
         public void CommitChanges()
         {
             _master.CommitChanges();
+        }
+
+        public string[] FindUsersByFirstName(string firstName)
+        {
+            currentService = (currentService + 1) % serviceCount;
+            var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
+
+            return service.FindUsersByFirstName(firstName);
+        }
+
+        public string[] FindUsersByLastName(string lastName)
+        {
+            currentService = (currentService + 1) % serviceCount;
+            var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
+
+            return service.FindUsersByLastName(lastName);
+        }
+
+        public string[] FindUsersByBirthDate(DateTime birthDate)
+        {
+            currentService = (currentService + 1) % serviceCount;
+            var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
+
+            return service.FindUsersByBirthDate(birthDate);
+        }
+
+        public string[] FindUsersWhoseNameContains(string word)
+        {
+            currentService = (currentService + 1) % serviceCount;
+            var service = currentService == (serviceCount - 1) ? _master : _slaves[currentService];
+
+            return service.FindUsersWhoseNameContains(word);
         }
     }
 }

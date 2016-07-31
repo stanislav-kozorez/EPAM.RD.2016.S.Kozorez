@@ -115,9 +115,6 @@ namespace UserStorageSystem
                 if (predicate(user))
                     result.Add(user.Id);
             });
-            //foreach (var user in _users)
-            //    if (predicate(user))
-            //        result.Add(user.Id);
             _locker.ExitReadLock();
 
             return result.ToArray();
@@ -243,6 +240,26 @@ namespace UserStorageSystem
                 if (_users[i].Id == id)
                     return i;
             return -1;
+        }
+
+        public string[] FindUsersByFirstName(string firstName)
+        {
+            return FindUser(x => x.FirstName == firstName);
+        }
+
+        public string[] FindUsersByLastName(string lastName)
+        {
+            return FindUser(x => x.LastName == lastName);
+        }
+
+        public string[] FindUsersByBirthDate(DateTime birthDate)
+        {
+            return FindUser(x => x.BirthDate == birthDate);
+        }
+
+        public string[] FindUsersWhoseNameContains(string word)
+        {
+            return FindUser(x => x.FirstName.Contains(word));
         }
     }
 }

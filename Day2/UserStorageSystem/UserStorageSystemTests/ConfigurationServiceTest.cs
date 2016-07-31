@@ -8,9 +8,9 @@ namespace UserStorageSystemTests
     public class ConfigurationServiceTest
     {
         [TestMethod]
-        public void ConfigureUserService_ReturnsNotNullUserManagementSystemInstance()
+        public void ConfigureUserServiceInSingleDomain_ReturnsNotNullUserManagementSystemInstance()
         {
-            var userService = ConfigurationService.ConfigureUserService();
+            var userService = ConfigurationService.ConfigureUserServiceInSingleDomain();
 
             Assert.IsNotNull(userService);
         }

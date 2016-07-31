@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{252BE0F5-98F2-4BDC-8277-E41A91270E3C}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{DB80D185-0329-4FF7-A69F-B4EA6ACE46EC}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UserStorageSystem</RootNamespace>
-    <AssemblyName>UserStorageSystem</AssemblyName>
+    <RootNamespace>UserManagementServiceHost</RootNamespace>
+    <AssemblyName>UserManagementServiceHost</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,9 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,31 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationService.cs" />
-    <Compile Include="Configuration\ServiceElement.cs" />
-    <Compile Include="Configuration\ServicesCollection.cs" />
-    <Compile Include="Configuration\ServicesConfigSection.cs" />
-    <Compile Include="Configuration\StorageConfigSection.cs" />
-    <Compile Include="DefaultValidator.cs" />
-    <Compile Include="DefaultGenerator.cs" />
-    <Compile Include="Entities\StorageInfo.cs" />
-    <Compile Include="Entities\TcpBundle.cs" />
-    <Compile Include="Entities\TcpInfo.cs" />
-    <Compile Include="Interfaces\IIdGenerator.cs" />
-    <Compile Include="Interfaces\ILogger.cs" />
-    <Compile Include="Interfaces\IUserService.cs" />
-    <Compile Include="Interfaces\IUserStorage.cs" />
-    <Compile Include="Interfaces\IUserValidator.cs" />
-    <Compile Include="DefaultLogger.cs" />
-    <Compile Include="Serialization\XmlSerializer.cs" />
-    <Compile Include="UserAddEventArgs.cs" />
-    <Compile Include="UserManagementSystem.cs" />
-    <Compile Include="UserRemoveEventArgs.cs" />
-    <Compile Include="UserService.cs" />
-    <Compile Include="Entities\User.cs" />
-    <Compile Include="Entities\VisaRecord.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlUserStorage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UserStorageSystem\UserStorageSystem.csproj">
+      <Project>{252be0f5-98f2-4bdc-8277-e41a91270e3c}</Project>
+      <Name>UserStorageSystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

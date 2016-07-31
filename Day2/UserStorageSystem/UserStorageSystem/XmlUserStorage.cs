@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Xml.Serialization;
 using UserStorageSystem.Entities;
 using UserStorageSystem.Interfaces;
+using UserStorageSystem.Serialization.Xml;
 
 namespace UserStorageSystem
 {
@@ -25,12 +24,9 @@ namespace UserStorageSystem
             {
                 if (new FileInfo(Name).Extension != ".xml")
                     throw new ArgumentException($"wrong type of file {Name}");
-
-                using (var stream = File.Open(Name, FileMode.Open, FileAccess.Read))
-                {
-                    XmlSerializer serializer = new XmlSerializer(typeof(StorageInfo));
-                    result = (StorageInfo)serializer.Deserialize(stream);
-                }
+                
+                var serializer = new XmlSerializer(typeof(StorageInfo));
+                result = (StorageInfo)serializer.Deserialize(Name);
             }
             
             return result;
@@ -40,12 +36,9 @@ namespace UserStorageSystem
         {
             if (storageInfo == null)
                 throw new ArgumentNullException(nameof(storageInfo));
-
-            using (var stream = File.Open(Name, FileMode.Create))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(StorageInfo));
-                serializer.Serialize(stream, storageInfo);
-            }
+            
+            var serializer = new XmlSerializer(typeof(StorageInfo));
+            serializer.Serialize(storageInfo, Name);
         }
     }
 }

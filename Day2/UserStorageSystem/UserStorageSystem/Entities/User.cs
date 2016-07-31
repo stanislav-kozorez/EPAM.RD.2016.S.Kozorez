@@ -1,17 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace UserStorageSystem.Entities
 {
+    [DataContract]
     [Serializable()]
     public class User: IEquatable<User>
     {
+        [DataMember]
         public string Id { get; set; }
+        [DataMember]
         public string FirstName { get; set; }
+        [DataMember]
         public string LastName { get; set; }
+        [DataMember]
         public DateTime BirthDate { get; set; }
+        [DataMember]
         public string Passport { get; set; }
+        [DataMember]
         public Gender Gender { get; set; }
+        [DataMember]
         public List<VisaRecord> VisaRecords { get; set; }
         public User() { VisaRecords = new List<VisaRecord>(); }
 

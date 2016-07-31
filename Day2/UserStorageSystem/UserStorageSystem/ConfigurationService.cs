@@ -14,7 +14,7 @@ namespace UserStorageSystem
 {
     public static class ConfigurationService
     {
-        public static IUserService ConfigureUserServiceInSingleDomain()
+        public static UserManagementSystem ConfigureUserServiceInSingleDomain()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("serviceConfig");
             var storagesSection = (StorageConfigSection)ConfigurationManager.GetSection("storage");

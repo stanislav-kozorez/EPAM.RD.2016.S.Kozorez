@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{252BE0F5-98F2-4BDC-8277-E41A91270E3C}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{490A93D8-E0B2-4915-A99A-E5B677D9D59C}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UserStorageSystem</RootNamespace>
-    <AssemblyName>UserStorageSystem</AssemblyName>
+    <RootNamespace>UserManagementServiceClient</RootNamespace>
+    <AssemblyName>UserManagementServiceClient</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,7 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -43,31 +45,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationService.cs" />
-    <Compile Include="Configuration\ServiceElement.cs" />
-    <Compile Include="Configuration\ServicesCollection.cs" />
-    <Compile Include="Configuration\ServicesConfigSection.cs" />
-    <Compile Include="Configuration\StorageConfigSection.cs" />
-    <Compile Include="DefaultValidator.cs" />
-    <Compile Include="DefaultGenerator.cs" />
-    <Compile Include="Entities\StorageInfo.cs" />
-    <Compile Include="Entities\TcpBundle.cs" />
-    <Compile Include="Entities\TcpInfo.cs" />
-    <Compile Include="Interfaces\IIdGenerator.cs" />
-    <Compile Include="Interfaces\ILogger.cs" />
-    <Compile Include="Interfaces\IUserService.cs" />
-    <Compile Include="Interfaces\IUserStorage.cs" />
-    <Compile Include="Interfaces\IUserValidator.cs" />
-    <Compile Include="DefaultLogger.cs" />
-    <Compile Include="Serialization\XmlSerializer.cs" />
-    <Compile Include="UserAddEventArgs.cs" />
-    <Compile Include="UserManagementSystem.cs" />
-    <Compile Include="UserRemoveEventArgs.cs" />
-    <Compile Include="UserService.cs" />
-    <Compile Include="Entities\User.cs" />
-    <Compile Include="Entities\VisaRecord.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlUserStorage.cs" />
+    <Compile Include="Service References\UserManagementService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Service References\UserManagementService\item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UserManagementService\item1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UserManagementService\item2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UserManagementService\item3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\UserManagementService\UserManagementServiceClient.UserManagementService.User.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\UserManagementService\UserManagementSystem.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\UserManagementService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UserManagementService\item.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UserManagementService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UserManagementService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\UserManagementService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
