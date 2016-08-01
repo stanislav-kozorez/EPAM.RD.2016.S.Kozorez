@@ -7,7 +7,7 @@ using System.Configuration;
 
 namespace UserStorageSystem.Configuration
 {
-    public class ServicesConfigSection: ConfigurationSection
+    public class ServicesConfigSection : ConfigurationSection
     {
         [ConfigurationProperty("usesTcp", DefaultValue = true, IsRequired = true)]
         public bool UsesTcp

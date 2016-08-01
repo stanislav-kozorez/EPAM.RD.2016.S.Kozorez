@@ -8,25 +8,30 @@ namespace UserStorageSystem
 {
     public class XmlUserStorage : MarshalByRefObject, IUserStorage
     {
-        public string Name { get; set; }
-
         public XmlUserStorage(string name)
         {
-            if (String.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
+            {
                 throw new ArgumentException(nameof(name));
+            }
+
             this.Name = name;
         }
+
+        public string Name { get; set; }
 
         public StorageInfo LoadUsers()
         {
             StorageInfo result = null;
-            if (File.Exists(Name))
+            if (File.Exists(this.Name))
             {
-                if (new FileInfo(Name).Extension != ".xml")
-                    throw new ArgumentException($"wrong type of file {Name}");
+                if (new FileInfo(this.Name).Extension != ".xml")
+                {
+                    throw new ArgumentException($"wrong type of file {this.Name}");
+                }
                 
                 var serializer = new XmlSerializer(typeof(StorageInfo));
-                result = (StorageInfo)serializer.Deserialize(Name);
+                result = (StorageInfo)serializer.Deserialize(this.Name);
             }
             
             return result;
@@ -35,10 +40,12 @@ namespace UserStorageSystem
         public void SaveUsers(StorageInfo storageInfo)
         {
             if (storageInfo == null)
+            {
                 throw new ArgumentNullException(nameof(storageInfo));
+            }
             
             var serializer = new XmlSerializer(typeof(StorageInfo));
-            serializer.Serialize(storageInfo, Name);
+            serializer.Serialize(storageInfo, this.Name);
         }
     }
 }

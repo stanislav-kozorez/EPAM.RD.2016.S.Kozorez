@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UserManagementServiceClient.UserManagementService;
 
 namespace UserManagementServiceClient
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var userService = new UserServiceClient("BasicHttpBinding_IUserService");
 
-            var writeTask = new Task(() => {
+            var writeTask = new Task(() => 
+            {
                 for (int i = 0; i < 100; i++)
                 {
                     userService.AddUser(new User()

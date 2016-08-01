@@ -5,10 +5,21 @@ using System.ServiceModel;
 
 namespace UserStorageSystem.Entities
 {
-    [DataContract]
-    [Serializable()]
-    public class User: IEquatable<User>
+    public enum Gender
     {
+        Male,
+        Female
+    }
+
+    [DataContract]
+    [Serializable]
+    public class User : IEquatable<User>
+    {
+        public User()
+        {
+            this.VisaRecords = new List<VisaRecord>();
+        }
+
         [DataMember]
         public string Id { get; set; }
         [DataMember]
@@ -23,40 +34,46 @@ namespace UserStorageSystem.Entities
         public Gender Gender { get; set; }
         [DataMember]
         public List<VisaRecord> VisaRecords { get; set; }
-        public User() { VisaRecords = new List<VisaRecord>(); }
 
         public bool Equals(User other)
         {
             if (other == null)
+            {
                 return false;
-            if (String.Compare(this.FirstName, other.FirstName) == 0 &&
-                String.Compare(this.LastName, other.LastName) == 0)
+            }
+
+            if (string.Compare(this.FirstName, other.FirstName) == 0 &&
+                string.Compare(this.LastName, other.LastName) == 0)
+            {
                 return true;
+            }
+
             return false;
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
+            {
                 return false;
+            }
+
             if (obj.GetType() != typeof(User))
+            {
                 return false;
+            }
+
             User user = (User)obj;
-            return Equals(user);
+
+            return this.Equals(user);
         }
 
         public override int GetHashCode()
         {
             int result = 23;
-            result ^= String.IsNullOrEmpty(FirstName) ? 0 : FirstName.GetHashCode();
-            result ^= String.IsNullOrEmpty(LastName) ? 0 : LastName.GetHashCode();
+            result ^= string.IsNullOrEmpty(this.FirstName) ? 0 : this.FirstName.GetHashCode();
+            result ^= string.IsNullOrEmpty(this.LastName) ? 0 : this.LastName.GetHashCode();
             return result;
         }
-    }
-
-    public enum Gender
-    {
-        Male,
-        Female
     }
 }

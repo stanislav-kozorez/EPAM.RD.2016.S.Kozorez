@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UserStorageSystem.Entities;
@@ -13,253 +12,291 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
-    public class UserService: MarshalByRefObject, IUserService
+    public class UserService : MarshalByRefObject, IUserService
     {
-        private readonly IUserStorage _userStorage;
-        private IUserValidator _userValidator;
-        private IIdGenerator _idGenerator;
-        private readonly ILogger _logger;
-        private bool _isMaster;
-        private List<User> _users;
-        private ReaderWriterLockSlim _locker;
-        private bool _usesTcp;
+        private IUserStorage userStorage;
+        private ILogger logger;
+        private IUserValidator userValidator;
+        private IIdGenerator idGenerator;
+        private bool isMaster;
+        private List<User> users;
+        private ReaderWriterLockSlim locker;
+        private bool usesTcp;
         private TcpInfo[] tcpInfos;
-
-        internal TcpInfo[] TcpInfos { get { return tcpInfos; } set { tcpInfos = value; } }
-        public string Name { get; internal set; }
-
-        public event EventHandler<UserAddEventArgs> OnUserAdd = delegate {};
-        public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
 
         public UserService(IUserStorage userStorage, ILogger logger, IUserValidator validator, IIdGenerator generator, bool isMaster = false, bool usesTcp = false, TcpInfo slaveInfo = null)
         {
             var storageInfo = userStorage.LoadUsers();
-            if(storageInfo == null)
+            if (storageInfo == null)
             {
                 storageInfo = new StorageInfo() { Users = new List<User>() };
             }
             else
             {
                 if (storageInfo.GeneratorTypeName != generator.GetType().FullName)
+                {
                     throw new ArgumentException("Generator type differs from stored one");
+                }
+
                 generator.RestoreGeneratorState(storageInfo.LastId, storageInfo.GeneratorCallCount);
             }
-            this._userStorage = userStorage;
-            this._userValidator = validator;
-            this._idGenerator = generator;
-            this._isMaster = isMaster;
-            this._users = storageInfo.Users;
-            this._logger = logger;
-            this._locker = new ReaderWriterLockSlim();
-            this._usesTcp = usesTcp;
-            if (usesTcp && !_isMaster)
-                StartListener(slaveInfo.IpAddress, slaveInfo.Port);
+
+            this.userStorage = userStorage;
+            this.userValidator = validator;
+            this.idGenerator = generator;
+            this.isMaster = isMaster;
+            this.users = storageInfo.Users;
+            this.logger = logger;
+            this.locker = new ReaderWriterLockSlim();
+            this.usesTcp = usesTcp;
+            if (usesTcp && !this.isMaster)
+            {
+                this.StartListener(slaveInfo.IpAddress, slaveInfo.Port);
+            }
         }
+
+        public event EventHandler<UserAddEventArgs> OnUserAdd = delegate { };
+
+        public event EventHandler<UserRemoveEventArgs> OnUserRemove = delegate { };
+
+        public string Name { get; internal set; }
+
+        internal TcpInfo[] TcpInfos { get { return this.tcpInfos; } set { this.tcpInfos = value; } }
 
         public string AddUser(User user)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to add new user to {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
+            this.logger.Log(TraceEventType.Information, string.Format("Try to add new user to {0}, device: {1}", this.isMaster ? "Master" : "Slave", this.Name));
             if (user == null)
-                throw new ArgumentNullException("User is Null");
-            if (!_isMaster)
-                throw new InvalidOperationException("It is forbidden to write to Slave");
-            if (!_userValidator.UserIsValid(user))
-                throw new ArgumentException("User validation failed");
-
-            _locker.EnterWriteLock();
-            _idGenerator.MoveNext();
-            var id = _idGenerator.Current.ToString();
-            user.Id = id;
-            _users.Add(user);
-            _locker.ExitWriteLock();
-
-            if(_usesTcp)
             {
-                NotifySlaves(new TcpBundle() { Command = TcpCommand.Add, User = user });
+                throw new ArgumentNullException("User is Null");
             }
+
+            if (!this.isMaster)
+            {
+                throw new InvalidOperationException("It is forbidden to write to Slave");
+            }
+
+            if (!this.userValidator.UserIsValid(user))
+            {
+                throw new ArgumentException("User validation failed");
+            }
+
+            this.locker.EnterWriteLock();
+            this.idGenerator.MoveNext();
+            var id = this.idGenerator.Current.ToString();
+            user.Id = id;
+            this.users.Add(user);
+            this.locker.ExitWriteLock();
+
+            if (this.usesTcp)
+            {
+                this.NotifySlaves(new TcpBundle() { Command = TcpCommand.Add, User = user });
+            }
+
             var eventArgs = new UserAddEventArgs(user);
-            OnUserAdd(this, eventArgs);
+            this.OnUserAdd(this, eventArgs);
+
             return id;
         }
 
         public void RemoveUser(string id)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to remove user from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
-            if (String.IsNullOrWhiteSpace(id))
-                throw new ArgumentNullException("Wrong id parameter");
-            if (!_isMaster)
-                throw new InvalidOperationException("It is forbidden to remove users from Slave");
-
-            _locker.EnterWriteLock();
-            var index = GetUserIndex(id);            
-            if (index == -1)
-                throw new ArgumentException($"User with id \"{id}\" doesn't exist");
-            _users.RemoveAt(index);
-            _locker.ExitWriteLock();
-
-            if (_usesTcp)
+            this.logger.Log(TraceEventType.Information, string.Format("Try to remove user from {0}, device: {1}", this.isMaster ? "Master" : "Slave", this.Name));
+            if (string.IsNullOrWhiteSpace(id))
             {
-                NotifySlaves(new TcpBundle() { Command = TcpCommand.Delete, User = new User() { Id = id } });
+                throw new ArgumentNullException("Wrong id parameter");
             }
+
+            if (!this.isMaster)
+            {
+                throw new InvalidOperationException("It is forbidden to remove users from Slave");
+            }
+
+            this.locker.EnterWriteLock();
+            var index = this.GetUserIndex(id);
+            if (index == -1)
+            {
+                throw new ArgumentException($"User with id \"{id}\" doesn't exist");
+            }
+
+            this.users.RemoveAt(index);
+            this.locker.ExitWriteLock();
+
+            if (this.usesTcp)
+            {
+                this.NotifySlaves(new TcpBundle() { Command = TcpCommand.Delete, User = new User() { Id = id } });
+            }
+
             var eventArgs = new UserRemoveEventArgs(index);
-            OnUserRemove(this, eventArgs);
+            this.OnUserRemove(this, eventArgs);
         }
 
         public string[] FindUser(Func<User, bool> predicate)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to find users by predicate from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
-            List<string> result = new List<string>();
+            this.logger.Log(TraceEventType.Information, string.Format("Try to find users by predicate from {0}, device: {1}", this.isMaster ? "Master" : "Slave", this.Name));
+            var result = new ConcurrentBag<string>();
 
-            _locker.EnterReadLock();
-            Parallel.ForEach<User>(_users, user => {
+            this.locker.EnterReadLock();
+            Parallel.ForEach<User>(this.users, user => 
+            {
                 if (predicate(user))
+                {
                     result.Add(user.Id);
+                }
             });
-            _locker.ExitReadLock();
+            this.locker.ExitReadLock();
 
-            return result.ToArray();
-                
+            return result.ToArray();             
         }
 
         public User FindUser(string id)
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to find user by id from {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
+            this.logger.Log(TraceEventType.Information, string.Format("Try to find user by id from {0}, device: {1}", this.isMaster ? "Master" : "Slave", this.Name));
 
-            _locker.EnterReadLock();
-            var index = GetUserIndex(id);
+            this.locker.EnterReadLock();
+            var index = this.GetUserIndex(id);
             if (index == -1)
+            {
                 throw new ArgumentException($"User with id \"{id}\" doesn't exist");
-            var result = _users[index];
-            _locker.ExitReadLock();
+            }
 
-            return result;
-            
+            var result = this.users[index];
+            this.locker.ExitReadLock();
+
+            return result;         
         }
 
         public void CommitChanges()
         {
-            _logger.Log(TraceEventType.Information, String.Format("Try to commit changes on {0}, device: {1}", _isMaster ? "Master" : "Slave", Name));
-            if (!_isMaster)
+            this.logger.Log(TraceEventType.Information, string.Format("Try to commit changes on {0}, device: {1}", this.isMaster ? "Master" : "Slave", this.Name));
+            if (!this.isMaster)
+            {
                 throw new InvalidOperationException("Commit is forbidden for Slave");
+            }
 
-            _locker.EnterReadLock();
+            this.locker.EnterReadLock();
             var storageInfo = new StorageInfo()
             {
-                Users = _users,
-                GeneratorCallCount = _idGenerator.CallNumber,
-                GeneratorTypeName = _idGenerator.GetType().FullName,
-                LastId = _idGenerator.Current.ToString()
+                Users = this.users,
+                GeneratorCallCount = this.idGenerator.CallNumber,
+                GeneratorTypeName = this.idGenerator.GetType().FullName,
+                LastId = this.idGenerator.Current.ToString()
             };
-            _userStorage.SaveUsers(storageInfo);
-            _locker.ExitReadLock();
+            this.userStorage.SaveUsers(storageInfo);
+            this.locker.ExitReadLock();
+        }
+
+        public string[] FindUsersByFirstName(string firstName)
+        {
+            return this.FindUser(x => x.FirstName == firstName);
+        }
+
+        public string[] FindUsersByLastName(string lastName)
+        {
+            return this.FindUser(x => x.LastName == lastName);
+        }
+
+        public string[] FindUsersByBirthDate(DateTime birthDate)
+        {
+            return this.FindUser(x => x.BirthDate == birthDate);
+        }
+
+        public string[] FindUsersWhoseNameContains(string word)
+        {
+            return this.FindUser(x => x.FirstName.Contains(word));
         }
 
         internal void OnUserAddHandler(object sender, UserAddEventArgs e)
         {
-            _logger.Log(TraceEventType.Information, $"UserAddHandler on Slave {Name}");
+            this.logger.Log(TraceEventType.Information, $"UserAddHandler on Slave {Name}");
 
-            _locker.EnterWriteLock();
-            _users.Add(e.User);
-            _locker.ExitWriteLock();
+            this.locker.EnterWriteLock();
+            this.users.Add(e.User);
+            this.locker.ExitWriteLock();
         }
 
         internal void OnUserRemoveHandler(object sender, UserRemoveEventArgs e)
         {
-            _logger.Log(TraceEventType.Information, $"UserRemoveHandler on Slave {Name}");
+            this.logger.Log(TraceEventType.Information, $"UserRemoveHandler on Slave {Name}");
 
-            _locker.EnterWriteLock();
-            _users.RemoveAt(e.Index);
-            _locker.ExitWriteLock();
+            this.locker.EnterWriteLock();
+            this.users.RemoveAt(e.Index);
+            this.locker.ExitWriteLock();
         }
 
         internal void NotifySlaves(TcpBundle bundle)
         {
             var formatter = new BinaryFormatter();
-            foreach (var tcpInfo in tcpInfos)
+            foreach (var tcpInfo in this.tcpInfos)
             {
-                _logger.Log(TraceEventType.Information, $"Notify slave at {tcpInfo.IpAddress}:{tcpInfo.Port}");
+                this.logger.Log(TraceEventType.Information, $"Notify slave at {tcpInfo.IpAddress}:{tcpInfo.Port}");
                 var client = new TcpClient(tcpInfo.IpAddress, tcpInfo.Port);
                 var strm = client.GetStream();
                 formatter.Serialize(strm, bundle);
                 strm.Close();
                 client.Close();
             }
-        } 
+        }
 
         internal void StartListener(string ipAddr, int port)
         {
-            Thread thread = new Thread(new ThreadStart(
-                () => {
-                    TcpListener server = null;
-                    try
-                    {
-                        IPAddress addr = IPAddress.Parse(ipAddr);
-                        server = new TcpListener(addr, port);
+            Thread thread = new Thread(new ThreadStart(() =>
+            {
+                TcpListener server = null;
+                try
+                {
+                    IPAddress addr = IPAddress.Parse(ipAddr);
+                    server = new TcpListener(addr, port);
 
-                        server.Start();
-                        while (true)
+                    server.Start();
+                    while (true)
+                    {
+                        TcpClient client = server.AcceptTcpClient();
+
+                        logger.Log(TraceEventType.Information, $"device {Name} got new update request");
+                        var stream = client.GetStream();
+                        var formatter = new BinaryFormatter();
+
+                        TcpBundle bundle = (TcpBundle)formatter.Deserialize(stream);
+
+                        if (bundle.Command == TcpCommand.Add)
                         {
-                            TcpClient client = server.AcceptTcpClient();
-
-                            _logger.Log(TraceEventType.Information, $"device {Name} got new update request");
-                            var stream = client.GetStream();
-                            var formatter = new BinaryFormatter();
-
-                            TcpBundle bundle = (TcpBundle)formatter.Deserialize(stream);
-
-                            if (bundle.Command == TcpCommand.Add)
-                            {
-                                OnUserAddHandler(this, new UserAddEventArgs(bundle.User));
-                            }
-                            else
-                            {
-                                var index = GetUserIndex(bundle.User.Id);
-                                OnUserRemoveHandler(this, new UserRemoveEventArgs(index));
-                            }
-                            
-                            stream.Close();
-                            client.Close();
+                            OnUserAddHandler(this, new UserAddEventArgs(bundle.User));
                         }
+                        else
+                        {
+                            var index = GetUserIndex(bundle.User.Id);
+                            OnUserRemoveHandler(this, new UserRemoveEventArgs(index));
+                        }
+
+                        stream.Close();
+                        client.Close();
                     }
-                    catch (SocketException e)
-                    {
-                        _logger.Log(TraceEventType.Error, $"SocketException at device {Name} : {e.Message}");
-                    }
-                    finally
-                    {
-                        server.Stop();
-                    }
-                }));
+                }
+                catch (SocketException e)
+                {
+                    logger.Log(TraceEventType.Error, $"SocketException at device {Name} : {e.Message}");
+                }
+                finally
+                {
+                    server.Stop();
+                }
+            }));
             thread.IsBackground = true;
             thread.Start();
         }
 
         private int GetUserIndex(string id)
         {
-            for (int i = 0; i < _users.Count; i++)
-                if (_users[i].Id == id)
+            for (int i = 0; i < this.users.Count; i++)
+            {
+                if (this.users[i].Id == id)
+                {
                     return i;
+                }
+            }
+
             return -1;
-        }
-
-        public string[] FindUsersByFirstName(string firstName)
-        {
-            return FindUser(x => x.FirstName == firstName);
-        }
-
-        public string[] FindUsersByLastName(string lastName)
-        {
-            return FindUser(x => x.LastName == lastName);
-        }
-
-        public string[] FindUsersByBirthDate(DateTime birthDate)
-        {
-            return FindUser(x => x.BirthDate == birthDate);
-        }
-
-        public string[] FindUsersWhoseNameContains(string word)
-        {
-            return FindUser(x => x.FirstName.Contains(word));
         }
     }
 }

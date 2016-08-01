@@ -1,21 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserStorageSystem;
 using UserStorageSystem.Entities;
-using System.Collections.Generic;
-using System.IO;
 
 namespace UserStorageSystemTests
 {
     [TestClass]
     public class XmlUserStorageTest
     {
-        List<User> users;
+        private List<User> users;
         
         [TestInitialize]
         public void Init()
         {
-            users = new List<User>()
+            this.users = new List<User>()
             {
                 new User()
                 {
@@ -51,7 +51,7 @@ namespace UserStorageSystemTests
         [ExpectedException(typeof(ArgumentException))]
         public void Constructor_WithEmptyStorageName_ThrowsArgumentException()
         {
-            var storage = new XmlUserStorage("");
+            var storage = new XmlUserStorage(string.Empty);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace UserStorageSystemTests
             var storage = new XmlUserStorage("storage.xml");
             var storageInfo = new StorageInfo()
             {
-                Users = users,
+                Users = this.users,
                 GeneratorCallCount = 3,
                 GeneratorTypeName = typeof(DefaultGenerator).FullName,
                 LastId = "5"
@@ -90,7 +90,7 @@ namespace UserStorageSystemTests
             var storage = new XmlUserStorage("storage.xml");
 
             var result = storage.LoadUsers();
-            CollectionAssert.AreEqual(users, result.Users);
+            CollectionAssert.AreEqual(this.users, result.Users);
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using System;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserStorageSystem;
-using System.IO;
 
 namespace UserStorageSystemTests
 {
@@ -13,8 +12,7 @@ namespace UserStorageSystemTests
         {
             var logger = new DefaultLogger(); 
             logger.Log(System.Diagnostics.TraceEventType.Information, "Test");
-            Assert.IsTrue(File.Exists("AppLog.log"));
-           
+            Assert.IsTrue(File.Exists("AppLog.log"));          
         }
     }
 }

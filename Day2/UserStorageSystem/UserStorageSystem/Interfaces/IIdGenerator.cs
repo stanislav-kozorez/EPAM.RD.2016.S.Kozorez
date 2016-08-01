@@ -7,9 +7,10 @@ using UserStorageSystem.Entities;
 
 namespace UserStorageSystem.Interfaces
 {
-    public interface IIdGenerator: IEnumerator<int>
+    public interface IIdGenerator : IEnumerator<int>
     {
         int CallNumber { get; }
+
         void RestoreGeneratorState(string lastId, int callAttemptCount);
     }
 }

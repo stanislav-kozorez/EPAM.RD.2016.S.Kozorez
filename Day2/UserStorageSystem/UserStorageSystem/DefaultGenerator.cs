@@ -6,16 +6,17 @@ using UserStorageSystem.Interfaces;
 namespace UserStorageSystem
 {
     [Serializable]
-    public class DefaultGenerator: MarshalByRefObject, IIdGenerator
+    public class DefaultGenerator : MarshalByRefObject, IIdGenerator
     {
-        private int _number = 1;
+        private int number = 1;
+
         public int CallNumber { get; private set; }
 
         public int Current
         {
             get
             {
-                return _number;
+                return this.number;
             }
         }
 
@@ -23,48 +24,52 @@ namespace UserStorageSystem
         {
             get
             {
-                return Current;
+                return this.Current;
             }
         }
 
         public void RestoreGeneratorState(string lastId, int callAttemptCount)
         {
             int id;
-            if(!int.TryParse(lastId, out id))
+            if (!int.TryParse(lastId, out id))
             {
                 throw new ArgumentException("Invalid last id");
             }
-            _number = id;
-            CallNumber = callAttemptCount;
+
+            this.number = id;
+            this.CallNumber = callAttemptCount;
         }
 
         public void Dispose()
         {
-            
         }
 
         public bool MoveNext()
         {
-            _number = GetNextSimpleNumber();
-            CallNumber++;
-            if (CallNumber == 10000)
+            this.number = this.GetNextSimpleNumber();
+            this.CallNumber++;
+            if (this.CallNumber == 10000)
             {
-                CallNumber = 0;
-                _number = 1;
+                this.CallNumber = 0;
+                this.number = 1;
             }
+
             return true;
         }
 
         public void Reset()
         {
-            _number = 1;
-            CallNumber = 0;
+            this.number = 1;
+            this.CallNumber = 0;
         }
 
         private int GetNextSimpleNumber()
         {
-            while (!IsSimple(++_number)) ;
-            return _number;
+            while (!this.IsSimple(++this.number))
+            {
+            }
+
+            return this.number;
         }
 
         private bool IsSimple(int number)
@@ -78,6 +83,7 @@ namespace UserStorageSystem
                     break;
                 }
             }
+
             return result;
         }
     }

@@ -10,28 +10,37 @@ namespace UserStorageSystem.Serialization.Xml
 {
     public class XmlSerializer
     {
-        Type type;
+        private Type type;
 
         public XmlSerializer(Type type)
         {
             if (type == null)
+            {
                 throw new ArgumentNullException("Type parameter is null");
+            }
+
             this.type = type;
         }
 
         public void Serialize(object data, string path)
         {
             if (data.GetType().GetConstructor(new Type[0]) == null)
+            {
                 throw new SerializationException("Can't find constructor()");
-            if (type != data.GetType())
+            }
+
+            if (this.type != data.GetType())
+            {
                 throw new SerializationException("Type mismatch");
+            }
+
             XmlTextWriter xt = new XmlTextWriter(path, Encoding.UTF8);
 
             xt.Formatting = Formatting.Indented;
             xt.WriteStartDocument();
             xt.WriteStartElement(data.GetType().Name);
 
-            GenerateXmlBody(xt, data);
+            this.GenerateXmlBody(xt, data);
 
             xt.WriteEndElement();
             xt.WriteEndDocument();
@@ -40,62 +49,29 @@ namespace UserStorageSystem.Serialization.Xml
             xt.Close();
         }
 
-        private void GenerateXmlBody(XmlTextWriter xtw, object obj)
-        {
-            Type t = obj.GetType();
-
-            foreach (var property in t.GetProperties())
-            {
-                if (property.GetValue(obj) == null)
-                    continue;
-                if (property.PropertyType.Module.Name != typeof(int).Module.Name && property.PropertyType.BaseType.Name != "Enum")
-                {
-                    xtw.WriteStartElement(property.Name);
-                    GenerateXmlBody(xtw, property.GetValue(obj));
-                    xtw.WriteEndElement();
-                }
-                else
-                    if (property.PropertyType.Name == typeof(List<>).Name)
-                {
-                    var objectCollection = (dynamic)property.GetValue(obj);
-                    xtw.WriteStartElement(property.Name);
-                    foreach (var element in objectCollection)
-                    {
-                        xtw.WriteStartElement(element.GetType().Name);
-                        GenerateXmlBody(xtw, element);
-                        xtw.WriteEndElement();
-                    }
-                    xtw.WriteEndElement();
-                }
-                else
-                {
-                    xtw.WriteStartElement(property.Name);
-                    xtw.WriteString(property.GetValue(obj).ToString());
-                    xtw.WriteEndElement();
-                }
-            }
-        }
-
         public object Deserialize(string path)
         {
             XmlDocument doc = new XmlDocument();
             XmlNode root = null;
 
-
             doc.Load(path);
             root = doc.DocumentElement;
 
-            if (type.Name != root.Name)
+            if (this.type.Name != root.Name)
+            {
                 throw new SerializationException("Wrong data type in xml document.");
+            }
 
-            ConstructorInfo cInfo = type.GetConstructor(new Type[0]);
+            ConstructorInfo cInfo = this.type.GetConstructor(new Type[0]);
 
             object result = cInfo.Invoke(new object[0]);
 
             if (result == null)
-                throw new SerializationException("Couldn't Create instance of type " + type.Name + ".");
+            {
+                throw new SerializationException("Couldn't Create instance of type " + this.type.Name + ".");
+            }
 
-            InitObject(result, root);
+            this.InitObject(result, root);
 
             Console.WriteLine();
 
@@ -109,19 +85,24 @@ namespace UserStorageSystem.Serialization.Xml
             foreach (var property in t.GetProperties())
             {
                 if (property.GetSetMethod() == null)
+                {
                     continue;
+                }
+
                 if (property.PropertyType.Module.Name != typeof(int).Module.Name && property.PropertyType.BaseType.Name != "Enum")
                 {
                     int index;
-                    if (RootHasChild(root, property.Name, out index))
+                    if (this.RootHasChild(root, property.Name, out index))
                     {
                         ConstructorInfo c = property.PropertyType.GetConstructor(new Type[0]);
                         object obj = c.Invoke(new object[0]);
                         if (obj == null)
+                        {
                             throw new SerializationException("Couldn't Create instance of t " + property.PropertyType.Name + ".");
+                        }
 
                         XmlNode node = root.ChildNodes.Item(index);
-                        InitObject(obj, node);
+                        this.InitObject(obj, node);
                         property.SetValue(result, obj);
                     }
                 }
@@ -129,7 +110,7 @@ namespace UserStorageSystem.Serialization.Xml
                 if (property.PropertyType.Name == typeof(List<>).Name)
                 {
                     int index;
-                    if (RootHasChild(root, property.Name, out index))
+                    if (this.RootHasChild(root, property.Name, out index))
                     {
                         XmlNode node = root.ChildNodes.Item(index);
                         var objType = property.PropertyType.GenericTypeArguments[0];
@@ -139,18 +120,21 @@ namespace UserStorageSystem.Serialization.Xml
                             var obj = Activator.CreateInstance(objType);
 
                             if (obj == null)
-                                throw new SerializationException("Couldn't Create instance of type " + type.Name + ".");
+                            {
+                                throw new SerializationException("Couldn't Create instance of type " + this.type.Name + ".");
+                            }
 
-                            InitObject(obj, node.ChildNodes.Item(i));
+                            this.InitObject(obj, node.ChildNodes.Item(i));
                             objList.Add(Convert.ChangeType(obj, objType));
                         }
+
                         property.SetValue(result, objList);
                     }
                 }
                 else
                 {
                     int index;
-                    if (RootHasChild(root, property.Name, out index))
+                    if (this.RootHasChild(root, property.Name, out index))
                     {
                         XmlNode node = root.ChildNodes.Item(index);
                         if (property.PropertyType.BaseType.Name == "Enum")
@@ -180,7 +164,48 @@ namespace UserStorageSystem.Serialization.Xml
                     break;
                 }
             }
+
             return result;
+        }
+
+        private void GenerateXmlBody(XmlTextWriter xtw, object obj)
+        {
+            Type t = obj.GetType();
+
+            foreach (var property in t.GetProperties())
+            {
+                if (property.GetValue(obj) == null)
+                {
+                    continue;
+                }
+
+                if (property.PropertyType.Module.Name != typeof(int).Module.Name && property.PropertyType.BaseType.Name != "Enum")
+                {
+                    xtw.WriteStartElement(property.Name);
+                    this.GenerateXmlBody(xtw, property.GetValue(obj));
+                    xtw.WriteEndElement();
+                }
+                else
+                    if (property.PropertyType.Name == typeof(List<>).Name)
+                {
+                    var objectCollection = (dynamic)property.GetValue(obj);
+                    xtw.WriteStartElement(property.Name);
+                    foreach (var element in objectCollection)
+                    {
+                        xtw.WriteStartElement(element.GetType().Name);
+                        this.GenerateXmlBody(xtw, element);
+                        xtw.WriteEndElement();
+                    }
+
+                    xtw.WriteEndElement();
+                }
+                else
+                {
+                    xtw.WriteStartElement(property.Name);
+                    xtw.WriteString(property.GetValue(obj).ToString());
+                    xtw.WriteEndElement();
+                }
+            }
         }
     }
 }

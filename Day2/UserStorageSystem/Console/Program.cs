@@ -6,16 +6,16 @@ using UserStorageSystem.Entities;
 
 namespace ConsoleApp
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            //var userService = ConfigurationService.ConfigureUserServiceInSingleDomain();
+            // var userService = ConfigurationService.ConfigureUserServiceInSingleDomain();
             var userService = ConfigurationService.ConfigureUserServiceInMultiplyDomains();
             
-
-            var writeTask = new Task(() => {
-                for(int i = 0; i < 100; i++)
+            var writeTask = new Task(() => 
+            {
+                for (int i = 0; i < 100; i++)
                 {
                     userService.AddUser(new User()
                     {
@@ -31,9 +31,9 @@ namespace ConsoleApp
 
             var findTask = new Task(() =>
             {
-            for (int i = 0; i < 200; i++)
-            {
-                Console.WriteLine("Found {0} users", userService.FindUser(x => x.FirstName.Contains("2")).Length);
+                for (int i = 0; i < 200; i++)
+                {
+                    Console.WriteLine("Found {0} users", userService.FindUser(x => x.FirstName.Contains("2")).Length);
                     Thread.Sleep(500);
                 }
             });

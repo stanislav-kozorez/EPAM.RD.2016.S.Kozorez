@@ -12,21 +12,21 @@ namespace UserStorageSystem
     [Serializable]
     public class DefaultLogger : MarshalByRefObject, ILogger
     {
-        private TraceSource _traceSource;
-        private int _id;
+        private TraceSource traceSource;
+        private int id;
 
         public DefaultLogger()
         {
-            _traceSource = new TraceSource("Logger");
+            this.traceSource = new TraceSource("Logger");
         }
 
         public void Log(TraceEventType eventType, string message)
         {
             try
             {
-                _traceSource.TraceData(eventType, ++_id, message);
-                _traceSource.Flush();
-                _traceSource.Close();
+                this.traceSource.TraceData(eventType, ++this.id, message);
+                this.traceSource.Flush();
+                this.traceSource.Close();
             }
             catch (ConfigurationException ex)
             {

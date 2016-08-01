@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UserStorageSystem.Configuration
 {
-    public class StorageConfigSection: ConfigurationSection
+    public class StorageConfigSection : ConfigurationSection
     {
         [ConfigurationProperty("name", DefaultValue = "storage.xml", IsRequired = true)]
         public string Name
@@ -16,6 +16,7 @@ namespace UserStorageSystem.Configuration
             {
                 return (string)this["name"];
             }
+
             set
             {
                 this["name"] = value;

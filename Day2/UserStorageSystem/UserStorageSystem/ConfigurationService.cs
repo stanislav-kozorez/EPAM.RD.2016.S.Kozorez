@@ -22,13 +22,22 @@ namespace UserStorageSystem
             bool usesTcp = servicesSection.UsesTcp;
             int slaveCount = servicesSection.Services.Count - 1;
             if (slaveCount <= 0 || slaveCount > 10)
+            {
                 throw new ArgumentException("Invalid Slave count");
+            }
+
             int masterCount = servicesSection.Services.Cast<ServiceElement>().Where(x => x.Type == "master").Count();
             if (masterCount != 1)
+            {
                 throw new ArgumentException("Invalid Master count");
+            }
+
             var storageName = storagesSection.Name;
-            if (String.IsNullOrWhiteSpace(storageName))
+            if (string.IsNullOrWhiteSpace(storageName))
+            {
                 throw new ArgumentException("Invalid storage name");
+            }
+
             var userStorage = new XmlUserStorage(storageName);
             var logger = new DefaultLogger();
             var validator = new DefaultValidator();
@@ -40,9 +49,9 @@ namespace UserStorageSystem
             var tcpInfos = slavesInfo.Select(x => new TcpInfo() { IpAddress = x.Ip, Port = x.Port }).ToArray();
             master.TcpInfos = tcpInfos;
             var slaves = new UserService[slaveCount];
-            for(int i = 0; i < tcpInfos.Length; i++)
+            for (int i = 0; i < tcpInfos.Length; i++)
             {
-                slaves[i] = new UserService(userStorage, logger, validator, generator, usesTcp: usesTcp, slaveInfo: tcpInfos[i]) { Name = slavesInfo[i].Name};
+                slaves[i] = new UserService(userStorage, logger, validator, generator, usesTcp: usesTcp, slaveInfo: tcpInfos[i]) { Name = slavesInfo[i].Name };
                 if (!usesTcp)
                 {
                     master.OnUserAdd += slaves[i].OnUserAddHandler;
@@ -61,13 +70,21 @@ namespace UserStorageSystem
             bool usesTcp = servicesSection.UsesTcp;
             int slaveCount = servicesSection.Services.Count - 1;
             if (slaveCount <= 0 || slaveCount > 10)
+            {
                 throw new ArgumentException("Invalid Slave count");
+            }
+
             int masterCount = servicesSection.Services.Cast<ServiceElement>().Where(x => x.Type == "master").Count();
             if (masterCount != 1)
+            {
                 throw new ArgumentException("Invalid Master count");
+            }
+
             var storageName = storagesSection.Name;
-            if (String.IsNullOrWhiteSpace(storageName))
+            if (string.IsNullOrWhiteSpace(storageName))
+            {
                 throw new ArgumentException("Invalid storage name");
+            }
 
             UserService master = null;
             var servicesInfo = servicesSection.Services.Cast<ServiceElement>().ToArray();
@@ -83,7 +100,7 @@ namespace UserStorageSystem
                 var validator = (IUserValidator)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(DefaultValidator).FullName);
                 var generator = (IIdGenerator)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(DefaultGenerator).FullName);
                 
-                if(servicesInfo[i].Type == "master")
+                if (servicesInfo[i].Type == "master")
                 {
                     master = (UserService)domain.CreateInstanceAndUnwrap("UserStorageSystem", typeof(UserService).FullName, true, BindingFlags.CreateInstance, null,
                                   new object[] { userStorage, logger, validator, generator, true, usesTcp, null }, CultureInfo.CurrentCulture, null);
@@ -98,6 +115,7 @@ namespace UserStorageSystem
                     slaves[currentSlaveIndex++].Name = servicesInfo[i].Name;
                 }
             }
+
             if (!usesTcp)
             {
                 for (int i = 0; i < slaveCount; i++)

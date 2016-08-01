@@ -10,6 +10,7 @@ namespace UserStorageSystem.Interfaces
     public interface IUserStorage
     {
         void SaveUsers(StorageInfo storageInfo);
+
         StorageInfo LoadUsers();     
     }
 }

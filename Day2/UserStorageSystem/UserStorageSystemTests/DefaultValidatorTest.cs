@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UserStorageSystem.Entities;
 using UserStorageSystem;
@@ -34,7 +32,7 @@ namespace UserStorageSystemTests
             var user = new User()
             {
                 BirthDate = new DateTime(2005, 3, 20),
-                FirstName = "",
+                FirstName = string.Empty,
                 LastName = "Smith",
                 Gender = Gender.Male,
                 Passport = "AB3452343"
@@ -50,7 +48,7 @@ namespace UserStorageSystemTests
             {
                 BirthDate = new DateTime(2005, 3, 20),
                 FirstName = "John",
-                LastName = "",
+                LastName = string.Empty,
                 Gender = Gender.Male,
                 Passport = "AB3452343"
             };
@@ -64,7 +62,7 @@ namespace UserStorageSystemTests
             var user = new User()
             {
                 BirthDate = new DateTime(2005, 3, 20),
-                FirstName = "",
+                FirstName = string.Empty,
                 LastName = "Smith",
                 Gender = Gender.Male,
                 Passport = "AB34523453"

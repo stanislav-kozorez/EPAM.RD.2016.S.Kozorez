@@ -19,7 +19,6 @@ namespace UserStorageSystem.Interfaces
         [OperationContract]
         void CommitChanges();
 
-
         [OperationContract]
         string[] FindUsersByFirstName(string firstName);
         [OperationContract]

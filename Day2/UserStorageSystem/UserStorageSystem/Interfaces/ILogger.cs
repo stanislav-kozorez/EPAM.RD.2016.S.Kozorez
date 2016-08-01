@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 
-
 namespace UserStorageSystem.Interfaces
 {
     public interface ILogger

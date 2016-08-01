@@ -8,9 +8,9 @@ using UserStorageSystem;
 
 namespace UserManagementServiceHost
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var serviceUri = new Uri("http://localhost:8080/");
             using (var host = new ServiceHost(ConfigurationService.ConfigureUserServiceInMultiplyDomains(), serviceUri))
