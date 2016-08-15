@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
-using UserStorageSystem.Entities;
 using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    /// Default id generator. Generates prime number ids
+    /// </summary>
     [Serializable]
     public class DefaultGenerator : MarshalByRefObject, IIdGenerator
     {

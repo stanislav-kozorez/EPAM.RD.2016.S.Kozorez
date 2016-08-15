@@ -1,19 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UserStorageSystem.Configuration;
 using UserStorageSystem.Entities;
 using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    ///     Used for configuration of User Management System
+    /// </summary>
     public static class ConfigurationService
     {
+        /// <summary>
+        ///     Configures User Management System in single domain.
+        /// </summary>
+        /// <returns>
+        ///     UserManagementSystem instance, configured in single domain 
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///     thrown when App.config file contains wrong settings.
+        /// </exception>
         public static UserManagementSystem ConfigureUserServiceInSingleDomain()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("serviceConfig");
@@ -62,6 +71,15 @@ namespace UserStorageSystem
             return new UserManagementSystem(master, slaves);
         }
 
+        /// <summary>
+        ///     Configures User Management System in multiply domains.
+        /// </summary>
+        /// <returns>
+        ///     UserManagementSystem instance, configured in multiply domains 
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        ///     thrown when App.config file contains wrong settings.
+        /// </exception>
         public static UserManagementSystem ConfigureUserServiceInMultiplyDomains()
         {
             var servicesSection = (ServicesConfigSection)ConfigurationManager.GetSection("serviceConfig");

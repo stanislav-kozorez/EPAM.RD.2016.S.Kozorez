@@ -8,10 +8,21 @@ using System.Xml;
 
 namespace UserStorageSystem.Serialization.Xml
 {
+    /// <summary>
+    ///     Custom Xml Serializer. Uses reflection to serialize objects.
+    /// </summary>
     public class XmlSerializer
     {
         private Type type;
-
+        /// <summary>
+        ///     Initializes XmlSerializer with type param
+        /// </summary>
+        /// <param name="type">
+        ///     Type of data, whitch will be serialized.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///     thrown when type param is null.
+        /// </exception>
         public XmlSerializer(Type type)
         {
             if (type == null)
@@ -22,6 +33,18 @@ namespace UserStorageSystem.Serialization.Xml
             this.type = type;
         }
 
+        /// <summary>
+        ///     Enables to serialize data to xml file.
+        /// </summary>
+        /// <param name="data">
+        ///     data that will be serialized.
+        /// </param>
+        /// <param name="path">
+        ///     path to xml file.
+        /// </param>
+        /// <exception cref="SerializationException">
+        ///     thrown when object doesn't contains default constructor or data type, passed as parameter, and type, passed to serializer constructor don't match.
+        /// </exception>
         public void Serialize(object data, string path)
         {
             if (data.GetType().GetConstructor(new Type[0]) == null)
@@ -49,6 +72,19 @@ namespace UserStorageSystem.Serialization.Xml
             xt.Close();
         }
 
+
+        /// <summary>
+        ///     Deserializes object from xml file.
+        /// </summary>
+        /// <param name="path">
+        ///     path to xml file.
+        /// </param>
+        /// <returns>
+        ///     deserialized object.
+        /// </returns>
+        /// <exception cref="SerializationException">
+        ///     thrown when object doesn't contains default constructor or data type, passed as parameter, and type, passed to serializer constructor don't match.
+        /// </exception>
         public object Deserialize(string path)
         {
             XmlDocument doc = new XmlDocument();

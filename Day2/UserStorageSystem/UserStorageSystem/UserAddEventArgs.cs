@@ -3,6 +3,9 @@ using UserStorageSystem.Entities;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    ///     Used by master for notification of slaves when new user is added.
+    /// </summary>
     [Serializable]
     public class UserAddEventArgs : EventArgs
     {

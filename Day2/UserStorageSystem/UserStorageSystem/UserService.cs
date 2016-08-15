@@ -12,6 +12,9 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    /// Represents class that can be either master or slave.
+    /// </summary>
     public class UserService : MarshalByRefObject, IUserService
     {
         private IUserStorage userStorage;

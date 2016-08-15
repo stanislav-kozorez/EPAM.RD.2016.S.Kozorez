@@ -4,6 +4,9 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    ///     Default User validator
+    /// </summary>
     [Serializable]
     public class DefaultValidator : MarshalByRefObject, IUserValidator
     {

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    /// Default logger that uses System.Diagnostics.TraceSource class.
+    /// </summary>
     [Serializable]
     public class DefaultLogger : MarshalByRefObject, ILogger
     {

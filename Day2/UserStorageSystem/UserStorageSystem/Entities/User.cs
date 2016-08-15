@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.ServiceModel;
 
 namespace UserStorageSystem.Entities
 {
@@ -35,6 +34,16 @@ namespace UserStorageSystem.Entities
         [DataMember]
         public List<VisaRecord> VisaRecords { get; set; }
 
+
+        /// <summary>
+        ///     Compares two users by first and last name
+        /// </summary>
+        /// <param name="other">
+        ///     User to compare to.
+        /// </param>
+        /// <returns>
+        ///     True if first name and last name are equal, False otherwise
+        /// </returns>
         public bool Equals(User other)
         {
             if (other == null)
@@ -51,6 +60,15 @@ namespace UserStorageSystem.Entities
             return false;
         }
 
+        /// <summary>
+        ///     Standard Equals method, uses Equals( User other) internally
+        /// </summary>
+        /// <param name="obj">
+        ///     User to compare to.
+        /// </param>
+        /// <returns>
+        ///     True if first name and last name are equal, False otherwise
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
@@ -67,7 +85,12 @@ namespace UserStorageSystem.Entities
 
             return this.Equals(user);
         }
-
+        /// <summary>
+        ///     Overrided GetHashcode method
+        /// </summary>
+        /// <returns>
+        ///     Hashcode of the User entity
+        /// </returns>
         public override int GetHashCode()
         {
             int result = 23;

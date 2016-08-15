@@ -2,6 +2,9 @@
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    ///     Used by master for notification of slaves when user is removed.
+    /// </summary>
     [Serializable]
     public class UserRemoveEventArgs
     {

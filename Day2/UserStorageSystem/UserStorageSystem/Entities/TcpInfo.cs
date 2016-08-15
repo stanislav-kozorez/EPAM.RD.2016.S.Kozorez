@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UserStorageSystem.Entities
 {
+    /// <summary>
+    ///     Used by master to store connection information about slaves
+    /// </summary>
     [Serializable]
     public class TcpInfo
     {

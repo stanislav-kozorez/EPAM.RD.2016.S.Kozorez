@@ -5,6 +5,9 @@ using UserStorageSystem.Interfaces;
 
 namespace UserStorageSystem
 {
+    /// <summary>
+    /// Represents class that contains logic of request distribution between master and slaves. The class  also implements contract for Wcf service.
+    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)]
     public class UserManagementSystem : IUserService
     {

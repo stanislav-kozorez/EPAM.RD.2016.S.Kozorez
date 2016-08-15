@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace UserStorageSystem.Configuration
 {
+    /// <summary>
+    ///     Describes custom service configuration section
+    /// </summary>
     public class ServicesConfigSection : ConfigurationSection
     {
         [ConfigurationProperty("usesTcp", DefaultValue = true, IsRequired = true)]

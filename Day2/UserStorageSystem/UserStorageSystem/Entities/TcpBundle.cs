@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UserStorageSystem.Entities
 {
@@ -12,6 +8,9 @@ namespace UserStorageSystem.Entities
         Delete
     }
 
+    /// <summary>
+    ///     Master uses TcpBundle to notify slaves about changes.
+    /// </summary>
     [Serializable]
     internal class TcpBundle
     {
